@@ -1,0 +1,5 @@
+# Dependency directory
+node_modules
+*.swp
+scripts/PublishSettingsFile/
+public/angular/rocket.min.js
