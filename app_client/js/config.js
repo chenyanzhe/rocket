@@ -6,8 +6,13 @@
  * Initial there are written state for all view in theme.
  *
  */
-function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
-    $urlRouterProvider.otherwise("/index/main");
+function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdleProvider, KeepaliveProvider) {
+
+    // Configure Idle settings
+    IdleProvider.idle(5); // in seconds
+    IdleProvider.timeout(120); // in seconds
+
+    $urlRouterProvider.otherwise("/dashboards/main");
 
     $ocLazyLoadProvider.config({
         // Set to true if you want to see what and when is dynamically loaded
@@ -16,21 +21,40 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
 
     $stateProvider
 
-        .state('index', {
+        .state('dashboards', {
             abstract: true,
-            url: "/index",
+            url: "/dashboards",
             templateUrl: "views/common/content.html",
         })
-        .state('index.main', {
+        .state('dashboards.main', {
             url: "/main",
-            templateUrl: "views/main.html",
-            data: { pageTitle: 'Example view' }
-        })
-        .state('index.minor', {
-            url: "/minor",
-            templateUrl: "views/minor.html",
-            data: { pageTitle: 'Example view' }
-        })
+            templateUrl: "views/dashboard/main.html",
+            data: { pageTitle: 'Dashboard | Main' },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            serie: true,
+                            name: 'angular-flot',
+                            files: [ 'js/plugins/flot/jquery.flot.js', 'js/plugins/flot/jquery.flot.time.js', 'js/plugins/flot/jquery.flot.tooltip.min.js', 'js/plugins/flot/jquery.flot.spline.js', 'js/plugins/flot/jquery.flot.resize.js', 'js/plugins/flot/jquery.flot.pie.js', 'js/plugins/flot/curvedLines.js', 'js/plugins/flot/angular-flot.js', ]
+                        },
+                        {
+                            serie: true,
+                            files: ['js/plugins/jvectormap/jquery-jvectormap-2.0.2.min.js', 'js/plugins/jvectormap/jquery-jvectormap-2.0.2.css']
+                        },
+                        {
+                            serie: true,
+                            files: ['js/plugins/jvectormap/jquery-jvectormap-world-mill-en.js']
+                        },
+                        {
+                            name: 'ui.checkbox',
+                            files: ['js/bootstrap/angular-bootstrap-checkbox.js']
+                        }
+                    ]);
+                }
+            }
+        });
+
 }
 angular
     .module('inspinia')

@@ -2840,7 +2840,10 @@ a.forum-item-title:hover {
 }
 .tabs-container .nav-tabs > li.active > a,
 .tabs-container .nav-tabs > li.active > a:hover,
-.tabs-container .nav-tabs > li.active > a:focus {
+.tabs-container .nav-tabs > li.active > a:focus,
+.tabs-container .nav-tabs > li.active > div,
+.tabs-container .nav-tabs > li.active > div:hover,
+.tabs-container .nav-tabs > li.active > div:focus {
   border: 1px solid #e7eaec;
   border-bottom-color: transparent;
   background-color: #fff;
@@ -2854,9 +2857,13 @@ a.forum-item-title:hover {
 }
 .tabs-container .nav-tabs > li.active > a,
 .tabs-container .nav-tabs > li.active > a:hover,
-.tabs-container .nav-tabs > li.active > a:focus {
+.tabs-container .nav-tabs > li.active > a:focus,
+.tabs-container .nav-tabs > li.active > div,
+.tabs-container .nav-tabs > li.active > div:hover,
+.tabs-container .nav-tabs > li.active > div:focus {
   border: 1px solid #e7eaec;
   border-bottom-color: transparent;
+  cursor: pointer;
 }
 .tabs-container .nav-tabs {
   border-bottom: 1px solid #e7eaec;
@@ -2868,9 +2875,11 @@ a.forum-item-title:hover {
 .tabs-container .tabs-right .tab-pane .panel-body {
   border-top: 1px solid #e7eaec;
 }
-.tabs-container .nav-tabs > li a:hover {
+.tabs-container .nav-tabs > li a:hover,
+.tabs-container .nav-tabs > li div:hover {
   background: transparent;
   border-color: transparent;
+  cursor: pointer;
 }
 .tabs-container .tabs-below > .nav-tabs,
 .tabs-container .tabs-right > .nav-tabs,
@@ -3143,6 +3152,8 @@ body.tour-open .animated {
   margin: 10px;
   float: left;
   overflow: hidden;
+  min-height: 150px;
+  min-width: 150px;
 }
 .resizable-panels .ibox .ibox-content {
   height: calc(100% - 49px);
@@ -3576,7 +3587,10 @@ body.body-small .footer.fixed {
 }
 .nav-tabs > li.active > a,
 .nav-tabs > li.active > a:hover,
-.nav-tabs > li.active > a:focus {
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > div,
+.nav-tabs > li.active > div:hover,
+.nav-tabs > li.active > div:focus {
   -moz-border-bottom-colors: none;
   -moz-border-left-colors: none;
   -moz-border-right-colors: none;
@@ -3594,13 +3608,16 @@ body.body-small .footer.fixed {
   background: none;
   border: none;
 }
-.nav-tabs > li > a {
+.nav-tabs > li > a,
+.nav-tabs > li > div {
   color: #A7B1C2;
   font-weight: 600;
   padding: 10px 20px 10px 25px;
 }
 .nav-tabs > li > a:hover,
-.nav-tabs > li > a:focus {
+.nav-tabs > li > a:focus,
+.nav-tabs > li > div:hover,
+.nav-tabs > li > div:focus {
   background-color: #e6e6e6;
   color: #676a6c;
 }
@@ -8230,3 +8247,4 @@ body.md-skin {
   border: 2px dashed #1ab394 !important;
   padding: 40px 20px !important;
 }
+
