@@ -3337,12 +3337,6 @@ function jstreeCtrl($scope) {
 
 }
 
-function monthlyIncomeCtrl($scope) {
-
-    $scope.monthlyIncomeVal = 12345
-
-}
-
 /**
  *
  * Pass all functions into module
@@ -3386,6 +3380,5 @@ angular
     .controller('truncateCtrl', truncateCtrl)
     .controller('touchspinCtrl', touchspinCtrl)
     .controller('tourCtrl', tourCtrl)
-    .controller('jstreeCtrl', jstreeCtrl)
-    .controller('monthlyIncomeCtrl', monthlyIncomeCtrl);
+    .controller('jstreeCtrl', jstreeCtrl);
 

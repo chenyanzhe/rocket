@@ -28,7 +28,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
         })
         .state('dashboards.main', {
             url: "/main",
-            templateUrl: "views/dashboard/main.html",
+            templateUrl: "views/dashboard.main.html",
             data: { pageTitle: 'Dashboard | Main' },
             resolve: {
                 loadPlugin: function ($ocLazyLoad) {
@@ -53,7 +53,17 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                     ]);
                 }
             }
-        });
+        })
+        .state('virtmachines', {
+            abstract: true,
+            url: "/virtmachines",
+            templateUrl: "views/common/content.html",
+        })
+        .state('virtmachines.new', {
+            url: "/new",
+            templateUrl: "views/virtmachines.new.html"
+        })
+        ;
 
 }
 angular
