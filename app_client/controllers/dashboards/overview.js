@@ -1,11 +1,23 @@
-function vmDataCtrl($scope, vmService) {
+function vmDataCtrl($scope, vmLocsService, vmFullService) {
 	$scope.loadingChart = true;
 	$scope.loadingAmount = true;
 
-	vmService
+	vmLocsService
 		.success(function (data) {
-			console.log(data);
-			$scope.$broadcast("vmDataPrepared", {
+			$scope.vmLocsData = data;
+			console.log("vmDataPrepared-Fast");
+			$scope.$broadcast("vmDataPrepared-Fast", {
+			});
+		})
+		.error(function (err) {
+			console.log(err);
+		});
+
+	vmFullService
+		.success(function (data) {
+			$scope.vmData = data;
+			console.log("vmDataPrepared-Slow");
+			$scope.$broadcast("vmDataPrepared-Slow", {
 			});
 		})
 		.error(function (err) {
@@ -14,34 +26,37 @@ function vmDataCtrl($scope, vmService) {
 };
 
 function vmTotalAmountCtrl($scope) {
-	$scope.$on("vmDataPrepared", function (event, args) {
-		$scope.totalAmount = 235;
+	$scope.$on("vmDataPrepared-Fast", function (event, args) {
+		$scope.totalAmount = $scope.vmLocsData.length;
 		$scope.loadingAmount = false;
 	})
 }
 
 function vmLocDistDrawerCtrl($scope) {
-	$scope.$on("vmDataPrepared", function (event, args) {
-		var pieData = [
+	$scope.$on("vmDataPrepared-Fast", function (event, args) {
+		var counts = {};
+		$scope.vmLocsData.forEach(function(x) { counts[x] = (counts[x] || 0) + 1; });
+		var pieData = [];
+		for (var key in counts) {
+			pieData.push({label: key, data: counts[key]});
+		}
+
+		var pieDataStatic = [
 	        {
 	            label: "Sales 1",
-	            data: 21,
-	            color: "#d3d3d3"
+	            data: 21
 	        },
 	        {
 	            label: "Sales 2",
-	            data: 3,
-	            color: "#bababa"
+	            data: 3
 	        },
 	        {
 	            label: "Sales 3",
-	            data: 15,
-	            color: "#79d2c0"
+	            data: 15
 	        },
 	        {
 	            label: "Sales 4",
-	            data: 52,
-	            color: "#1ab394"
+	            data: 52
 	        }
 	    ];
 

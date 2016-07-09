@@ -1,7 +1,12 @@
-function vmService($http) {
-	return $http.get('/api/vm');
+function vmFullService($http) {
+	return $http.get('/api/vm_full');
+}
+
+function vmLocsService($http) {
+	return $http.get('/api/vm_locs');
 }
 
 angular
     .module('inspinia')
-    .service('vmService', vmService)
+    .service('vmFullService', vmFullService)
+    .service('vmLocsService', vmLocsService)

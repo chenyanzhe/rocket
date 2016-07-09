@@ -1,7 +1,10 @@
 var express = require('express');
 var router = express.Router();
-var ctrlVM = require('../controllers/vm');
+var ctrlVMFull = require('../controllers/vm_full');
+var ctrlVMLocs = require('../controllers/vm_locs');
 
-router.get('/vm', ctrlVM.vmList);
+router.get('/vm_full', ctrlVMFull.vmList);
+router.get('/vm_locs', ctrlVMLocs.vmLocs);
+
 
 module.exports = router;
