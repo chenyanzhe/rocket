@@ -7,7 +7,7 @@
  *
  */
 function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
-    $urlRouterProvider.otherwise("/index/main");
+    $urlRouterProvider.otherwise("/dashboards/overview");
 
     $ocLazyLoadProvider.config({
         // Set to true if you want to see what and when is dynamically loaded
@@ -16,18 +16,34 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
 
     $stateProvider
 
-        .state('index', {
+        .state('dashboards', {
             abstract: true,
-            url: "/index",
+            url: "/dashboards",
             templateUrl: "views/common/content.html",
         })
-        .state('index.main', {
-            url: "/main",
-            templateUrl: "views/main.html",
-            data: { pageTitle: 'Example view' }
+        .state('dashboards.overview', {
+            url: "/overview",
+            templateUrl: "views/dashboards/overview.html",
+            data: { pageTitle: 'Example view' },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            serie: true,
+                            name: 'angular-flot',
+                            files: ['lib/js/plugins/flot/jquery.flot.js', 'lib/js/plugins/flot/jquery.flot.time.js', 'lib/js/plugins/flot/jquery.flot.tooltip.min.js', 'lib/js/plugins/flot/jquery.flot.spline.js', 'lib/js/plugins/flot/jquery.flot.resize.js', 'lib/js/plugins/flot/jquery.flot.pie.js', 'lib/js/plugins/flot/curvedLines.js', 'lib/js/plugins/flot/angular-flot.js', ]
+                        }
+                    ]);
+                }
+            }
         })
-        .state('index.minor', {
-            url: "/minor",
+        .state('virtualmachines', {
+            abstract: true,
+            url: "/virtualmachines",
+            templateUrl: "views/common/content.html",
+        })
+        .state('virtualmachines.overview', {
+            url: "/overview",
             templateUrl: "views/minor.html",
             data: { pageTitle: 'Example view' }
         })
