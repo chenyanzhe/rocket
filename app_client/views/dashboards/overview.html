@@ -1,35 +1,35 @@
 <div class="wrapper wrapper-content">
 <div class="row">
     <div class="col-lg-12">
-        <div class="ibox float-e-margins">
+        <div class="ibox float-e-margins" ng-controller="vmDataCtrl">
             <div class="ibox-title">
                 <h5>Virual Machines</h5>
             </div>
             <div class="ibox-content">
                 <div class="row">
-                    <div class="col-lg-9">
-                        <div class="sk-spinner sk-spinner-wave">
+                    <div class="col-lg-9" ng-controller="vmLocDistDrawerCtrl">
+                        <div class="sk-spinner sk-spinner-wave" ng-show="loadingChart">
                             <div class="sk-rect1"></div>
                             <div class="sk-rect2"></div>
                             <div class="sk-rect3"></div>
                             <div class="sk-rect4"></div>
                             <div class="sk-rect5"></div>
                         </div>
-                        <div class="flot-chart" ng-controller="flotChartCtrl as charts">
-                            <div flot class="flot-chart-content" dataset="charts.flotPieData" options="charts.flotPieOptions"></div>
+                        <div class="flot-chart">
+                            <div flot class="flot-chart-content" ng-show="!loadingChart" dataset="flotPieData" options="flotPieOptions"></div>
                         </div>
                     </div>
                     <div class="col-lg-3">
                         <ul class="stat-list">
-                            <li>
-                                <div class="no-margins sk-spinner sk-spinner-wave">
+                            <li ng-controller="vmTotalAmountCtrl">
+                                <div class="no-margins sk-spinner sk-spinner-wave" ng-show="loadingAmount">
                                     <div class="sk-rect1"></div>
                                     <div class="sk-rect2"></div>
                                     <div class="sk-rect3"></div>
                                     <div class="sk-rect4"></div>
                                     <div class="sk-rect5"></div>
                                 </div>
-                                <h2 class="no-margins">2,346</h2>
+                                <h2 class="no-margins" ng-show="!loadingAmount">{{ totalAmount }}</h2>
                                 <small>Total Amount</small>
                             </li>
                         </ul>
