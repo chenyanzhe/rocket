@@ -12,7 +12,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
     IdleProvider.idle(5); // in seconds
     IdleProvider.timeout(120); // in seconds
 
-    $urlRouterProvider.otherwise("/dashboards/main");
+    $urlRouterProvider.otherwise("/dashboards/overview");
 
     $ocLazyLoadProvider.config({
         // Set to true if you want to see what and when is dynamically loaded
@@ -26,10 +26,10 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
             url: "/dashboards",
             templateUrl: "views/common/content.html",
         })
-        .state('dashboards.main', {
-            url: "/main",
-            templateUrl: "views/dashboard.main.html",
-            data: { pageTitle: 'Dashboard | Main' },
+        .state('dashboards.overview', {
+            url: "/overview",
+            templateUrl: "views/dashboards/overview.html",
+            data: { pageTitle: 'Dashboards | Overview' },
             resolve: {
                 loadPlugin: function ($ocLazyLoad) {
                     return $ocLazyLoad.load([
@@ -54,14 +54,14 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                 }
             }
         })
-        .state('virtmachines', {
+        .state('virtualmachines', {
             abstract: true,
-            url: "/virtmachines",
+            url: "/virtualmachines",
             templateUrl: "views/common/content.html",
         })
-        .state('virtmachines.new', {
-            url: "/new",
-            templateUrl: "views/virtmachines.new.html"
+        .state('virtualmachines.add', {
+            url: "/add",
+            templateUrl: "views/virtualmachines/add.html"
         })
         ;
 

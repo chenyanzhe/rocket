@@ -46,5 +46,7 @@ module.exports.vmList = function(req, res) {
       sendJSONresponse(res, 404, err);
     });
   */
-  sendJSONresponse(res, 200, staticData);
+  setTimeout(function(){
+    sendJSONresponse(res, 200, staticData);
+  }, 2000);
 };
