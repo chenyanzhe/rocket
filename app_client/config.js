@@ -24,7 +24,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
         .state('dashboards.overview', {
             url: "/overview",
             templateUrl: "views/dashboards/overview.html",
-            data: { pageTitle: 'Example view' },
+            data: { pageTitle: 'Dashboards | Overview' },
             resolve: {
                 loadPlugin: function ($ocLazyLoad) {
                     return $ocLazyLoad.load([
