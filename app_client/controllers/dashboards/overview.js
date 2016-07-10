@@ -1,4 +1,4 @@
-function vmDataCtrl($scope, vmLocsService, vmFullService) {
+function vmDataCtrl($scope, vmLocsService/*, vmFullService*/) {
 	$scope.loadingChart = true;
 	$scope.loadingAmount = true;
 
@@ -13,6 +13,7 @@ function vmDataCtrl($scope, vmLocsService, vmFullService) {
 			console.log(err);
 		});
 
+	/*
 	vmFullService
 		.success(function (data) {
 			$scope.vmData = data;
@@ -23,6 +24,7 @@ function vmDataCtrl($scope, vmLocsService, vmFullService) {
 		.error(function (err) {
 			console.log(err);
 		});
+	*/
 };
 
 function vmTotalAmountCtrl($scope) {

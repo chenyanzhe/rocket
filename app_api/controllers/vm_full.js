@@ -32,6 +32,8 @@ module.exports.vmList = function(req, res) {
   shell.executionStringBuilder("./scripts/get_vm_info.ps1", params)
     .then(function(str) {
         var ps = new shell(str);
+        console.log("get_vm_info started");
+        console.log(Date.now());
         return ps.execute();
     })
     .then(function(data) {
@@ -40,7 +42,8 @@ module.exports.vmList = function(req, res) {
           console.log("script execute fail");
           sendJSONresponse(res, 404, "script execute fail");
         } else {
-          console.log("script execute succesful");
+          console.log(Date.now());
+          console.log("get_vm_info ended");
           sendJSONresponse(res, 200, JSON.parse(data.output));
         }
       } else {
