@@ -1,3 +1,7 @@
+$global:password = "tyachen123"
+$global:applicationId = "8a82026c-0ed3-4023-953e-50a95005c3e0"
+$global:tenantId = "72f988bf-86f1-41af-91ab-2d7cd011db47"
+
 $currentScriptName = $MyInvocation.MyCommand.Name
 $global:namespace = [IO.Path]::GetFileNameWithoutExtension($currentScriptName)
 
@@ -14,13 +18,11 @@ function log_msg([String] $msg) {
 
 function login_azure()
 {
-    $thumbprint = "E3F17462987513A49EC814F5963F9B81A0052950"
-    $applicationId = "7bbcf204-41d2-42cf-aba3-5bf7f097445a"
-    $tenantId = "72f988bf-86f1-41af-91ab-2d7cd011db47"
-
-    Add-AzureRmAccount -ServicePrincipal -CertificateThumbprint "$thumbprint" -ApplicationId "$applicationId" -TenantId "$tenantId"
+    $securePassword = ConvertTo-SecureString $global:password -AsPlainText -Force
+    $cred = New-Object System.Management.Automation.PSCredential ($global:applicationId, $securePassword);
+    Add-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $global:tenantId
     if ($? -eq $False) {
-        log_msg "Fail to login via azure service principal"
+        log_msg "login via sp failed"
         return $False
     }
 }
