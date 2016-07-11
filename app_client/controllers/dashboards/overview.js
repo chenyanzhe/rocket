@@ -1,8 +1,9 @@
-function vmDataCtrl($scope, vmFullService) {
+function vmDataCtrl($scope, vmListService) {
 	$scope.loadingChart = true;
 	$scope.loadingAmount = true;
+	$scope.loadingUsage = true;
 
-	vmFullService
+	vmListService
 		.success(function (data) {
 			$scope.vmData = data;
 			$scope.$broadcast("vmDataPrepared", {
@@ -75,8 +76,32 @@ function vmLocDistDrawerCtrl($scope) {
 	})
 };
 
+function vmUsageCtrl($scope, vmUsageService) {
+	$scope.$on("vmDataPrepared", function (event, args) {
+		// render all cells first
+		var locsH = {};
+		$scope.vmData.forEach(function(vmObj) { locsH[vmObj.Location] = 0 });
+		var locs = Object.keys(locsH);
+		console.log(locs);
+
+		// regroup locs into three cols
+		vmUsageService.getVMUsage("eastus")
+			.success(function (data) {
+				$scope.vmUsage = data;
+				console.log("vmUsageData prepared");
+				console.log(data[0].CurrentValue);
+				console.log(data[0].Name.LocalizedValue);
+				$scope.loadingUsage = false;
+			})
+			.error(function (err) {
+				console.log(err);
+			});
+	})
+};
+
 angular
     .module('inspinia')
     .controller('vmDataCtrl', vmDataCtrl)
     .controller('vmLocDistDrawerCtrl', vmLocDistDrawerCtrl)
     .controller('vmTotalAmountCtrl', vmTotalAmountCtrl)
+    .controller('vmUsageCtrl', vmUsageCtrl)

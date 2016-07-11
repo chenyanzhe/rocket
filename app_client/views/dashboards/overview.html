@@ -1,9 +1,9 @@
-<div class="wrapper wrapper-content animated fadeInRight">
+<div class="wrapper wrapper-content animated fadeInRight" ng-controller="vmDataCtrl">
 <div class="row">
     <div class="col-lg-12">
-        <div class="ibox float-e-margins" ng-controller="vmDataCtrl">
+        <div class="ibox float-e-margins">
             <div class="ibox-title">
-                <h3>Virual Machines</h3>
+                <h3>Virual Machine Distribution</h3>
             </div>
             <div class="ibox-content">
                 <div class="row">
@@ -39,8 +39,20 @@
         </div>
     </div>
 </div>
+
+<div class="wrapper wrapper-content" ng-controller="vmUsageCtrl">
+<div class="col-lg-12" >
+    <div class="sk-spinner sk-spinner-wave" ng-show="loadingUsage">
+        <div class="sk-rect1"></div>
+        <div class="sk-rect2"></div>
+        <div class="sk-rect3"></div>
+        <div class="sk-rect4"></div>
+        <div class="sk-rect5"></div>
+    </div>
+</div>
+
 <div class="row">
-    <div class="col-lg-4">
+    <div class="col-lg-4" ng-show="!loadingUsage">
         <div class="ibox">
             <div class="ibox-title">
                 <a href="#" class="btn btn-xs btn-outline btn-primary pull-right">DETAILS <i class="fa fa-long-arrow-right"></i> </a>
@@ -270,7 +282,7 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-4">
+    <div class="col-lg-4" ng-show="!loadingUsage">
         <div class="ibox">
             <div class="ibox-title">
                 <a href="#" class="btn btn-xs btn-outline btn-primary pull-right">DETAILS <i class="fa fa-long-arrow-right"></i> </a>
@@ -500,7 +512,7 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-4">
+    <div class="col-lg-4" ng-show="!loadingUsage">
         <div class="ibox">
             <div class="ibox-title">
                 <a href="#" class="btn btn-xs btn-outline btn-primary pull-right">DETAILS <i class="fa fa-long-arrow-right"></i> </a>
@@ -730,4 +742,7 @@
             </div>
         </div>
     </div>
+</div>
+</div>
+
 </div>

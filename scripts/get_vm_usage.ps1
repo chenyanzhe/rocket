@@ -28,4 +28,4 @@ if ($ret.Get_Item("code") -eq $False) {
     return $ret | ConvertTo-Json
 }
 
-return (get_vm_usage $location) | ConvertTo-Json
+return (get_vm_usage $location) | ConvertTo-Json -Depth 3
