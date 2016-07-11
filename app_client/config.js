@@ -32,6 +32,10 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
                             serie: true,
                             name: 'angular-flot',
                             files: ['lib/js/plugins/flot/jquery.flot.js', 'lib/js/plugins/flot/jquery.flot.time.js', 'lib/js/plugins/flot/jquery.flot.tooltip.min.js', 'lib/js/plugins/flot/jquery.flot.spline.js', 'lib/js/plugins/flot/jquery.flot.resize.js', 'lib/js/plugins/flot/jquery.flot.pie.js', 'lib/js/plugins/flot/curvedLines.js', 'lib/js/plugins/flot/angular-flot.js', ]
+                        },
+                        {
+                            name: 'angular-peity',
+                            files: ['lib/js/plugins/peity/jquery.peity.min.js', 'lib/js/plugins/peity/angular-peity.js']
                         }
                     ]);
                 }
