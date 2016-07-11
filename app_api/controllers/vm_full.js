@@ -3,29 +3,6 @@ var sendJSONresponse = function(res, status, content) {
   res.json(content);
 };
 
-staticData = [{
-  Name: 'decui-bsd103',
-  PowerState: 'Started',
-  RoleSize: 'Large',
-  DeploymentName: 'Shanghai OSTC Dev',
-  InstanceSize: '512 MB',
-  IpAddress: '202.30.35.123'
-}, {
-  Name: 'yanmin-ubun1004',
-  PowerState: 'Stopped',
-  RoleSize: 'Medium',
-  DeploymentName: 'Shanghai OSTC Dev',
-  InstanceSize: '4 GB',
-  IpAddress: '202.120.35.123'
-}, {
-  Name: 'honzhan-debian7',
-  PowerState: 'Running',
-  RoleSize: 'Medium',
-  DeploymentName: 'Shanghai OSTC Dev',
-  InstanceSize: '4 GB',
-  IpAddress: '192.35.25.214'
-}]
-
 module.exports.vmList = function(req, res) {
   var params = [];
   var shell = require('node-powershell').Shell;
@@ -38,13 +15,15 @@ module.exports.vmList = function(req, res) {
     })
     .then(function(data) {
       if (data.code === 0) {
-        if (data.output === "False") {
-          console.log("script execute fail");
-          sendJSONresponse(res, 404, "script execute fail");
-        } else {
+        var feedback = JSON.parse(data.output);
+        if (feedback.code == false) {
+          console.log("get_vm_info execute fail");
           console.log(Date.now());
-          console.log("get_vm_info ended");
-          sendJSONresponse(res, 200, JSON.parse(data.output));
+          sendJSONresponse(res, 404, feedback.output);
+        } else {
+          console.log("get_vm_info execute success");
+          console.log(Date.now());
+          sendJSONresponse(res, 200, feedback.output);
         }
       } else {
         console.log("node subprocess abort");

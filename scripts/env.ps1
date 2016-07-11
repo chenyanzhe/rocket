@@ -31,11 +31,15 @@ function create_credential($arg_user, $arg_pwd) {
 function login_azure()
 {
     $cred = create_credential $global:applicationId $global:password
-    $accountObj = Add-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $global:tenantId
+    $accountObj = Add-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $global:tenantId -ErrorVariable err
     if ($? -eq $False) {
-        log_msg "login via sp failed"
-        return $False
+        log_msg "login_azure: Add-AzureRmAccount failed"
+        log_msg $err
+        $ret = @{"code" = $False; "output" = $err}
+        return $ret
     }
     $global:subscriptionId = $accountObj.Context.Subscription.SubscriptionId
     $global:subscriptionName = $accountObj.Context.Subscription.SubscriptionName
+    $ret = @{"code" = $True}
+    return $ret
 }
