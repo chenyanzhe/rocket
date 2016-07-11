@@ -53,7 +53,7 @@ function upload_vm_img_to_storage_account([String] $localFilePath) {
         echo "uploading $localFilePath to $destinationUri"
         Add-AzureRmVhd -ResourceGroupName $global:resourceGroupName `
                        -Destination $destinationUri `
-                       -LocalFilePath $localFilePath
+                       -LocalFilePath "$localFilePath"
         if ($? -eq $False) {
             echo "Add-AzureRmVhd failed"
         } else {
@@ -155,7 +155,7 @@ function setup_and_deploy_vm (
         echo "Setting VM Operating Disk..."
         $vmOsDiskName = $vmName + "disk"
         $vmOsDiskUri = $global:storageAccoutUrl + $global:blobContainerName + $vmOsDiskName + ".vhd"
-        $urlOfUploadedImageVhd = "https://yachenstorage.blob.core.windows.net/yachencustimg/freebsd103.vhd"
+        $urlOfUploadedImageVhd = "https://tyachenrocketstorage.blob.core.windows.net/rocket-vhds/yachen-freebsd10.3-2016-07-11-15-37-14.vhd"
         #$urlOfUploadedImageVhd = $global:uploadedVhdUri
 
         $vmObj = Set-AzureRmVMOSDisk -VM $vmObj -Name $vmOsDiskName -VhdUri $vmOsDiskUri `
@@ -175,9 +175,15 @@ function setup_and_deploy_vm (
         }
         echo "Done."
 
-        echo $vmPip.Id
-        echo $vmPip
         echo $vmInstance
+
+        ### FIXME: shouldn't do this, IP address must hide in some existing objects
+        $vmIpInfo = Get-AzureRmPublicIpAddress -name $vmPipName -ResourceGroupName $global:resourceGroupName
+
+        echo "Basic Information: "
+        echo "Ip address = $vmIpInfo.IpAddress"
+        echo "Admin username = $adminUsername"
+        echo "Admin password = $adminPassword"
     } else {
         echo "$vmName already exists in $global:resourceGroupName"
         Exit 1
@@ -190,10 +196,10 @@ create_resource_group_if_not_exist
 
 create_storage_accout_if_not_exist
 
-#upload_vm_img_to_storage_account
+#upload_vm_img_to_storage_account "C:\Users\Public\Documents\Hyper-V\Virtual Hard Disks\yachen-freebsd10.3.vhd"
 
 setup_vnet_if_not_exist
 
-setup_and_deploy_vm "haha" "haha123" "hahavm" "hahapc" "Standard_A1"
+setup_and_deploy_vm "haha" "haha123MS" "hahavm" "hahapc" "Standard_A1"
 
 exit 0
