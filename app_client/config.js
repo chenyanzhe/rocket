@@ -42,10 +42,10 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
             url: "/virtualmachines",
             templateUrl: "views/common/content.html",
         })
-        .state('virtualmachines.overview', {
-            url: "/overview",
-            templateUrl: "views/minor.html",
-            data: { pageTitle: 'Example view' }
+        .state('virtualmachines.deploy', {
+            url: "/deploy",
+            templateUrl: "views/virtualmachines/deploy.html",
+            data: { pageTitle: 'Virtual Machines | Deploy' }
         })
 }
 angular
