@@ -1,3 +1,35 @@
+// FIXME: it should only maintianed in filter
+function locationNameFormatUtil (name) {
+	var nameMapping = {
+		"japanwest": "Japan West",
+		"eastasia": "East Asia",
+		"centralus": "Central US",
+		"eastus": "East US",
+		"eastus2": "East US 2",
+		"westus": "West US",
+		"northcentralus": "North Central US",
+		"southcentralus": "South Central US",
+		"northeurope": "North Europe",
+		"westeurope": "West Europe",
+		"southeastasia": "Southeast Asia",
+		"japaneast": "Japan East",
+		"brazilsouth": "Brazil South",
+		"australiaeast": "Australia East",
+		"sustraliasoutheast": "Australia Southeast",
+		"southindia": "South India",
+		"centralindia": "Central India",
+		"westindia": "West India",
+		"canadacentral": "Canada Central",
+		"canadaeast": "Canada East"
+	};
+	if (name in nameMapping) {
+		return nameMapping[name];
+	} else {
+		return "Unknown";
+	}
+}
+
+
 function vmDataCtrl($scope, vmListService) {
 	$scope.loadingChart = true;
 	$scope.loadingAmount = true;
@@ -27,7 +59,7 @@ function vmLocDistDrawerCtrl($scope) {
 		$scope.vmData.forEach(function(vmObj) { counts[vmObj.Location] = (counts[vmObj.Location] || 0) + 1; });
 		var pieData = [];
 		for (var key in counts) {
-			pieData.push({label: key, data: counts[key]});
+			pieData.push({label: locationNameFormatUtil(key), data: counts[key]});
 		}
 
 		var pieDataStatic = [
@@ -76,21 +108,41 @@ function vmLocDistDrawerCtrl($scope) {
 	})
 };
 
+function injectPieChartData(arr) {
+	for (var i = 0; i < arr.length; i++) {
+		for (var j = 0; j < arr[i].usage.length; j++) {
+			arr[i].usage[j]["pieChartData"] = [arr[i].usage[j]["CurrentValue"], arr[i].usage[j]["Limit"]]
+			arr[i].usage[j]["pieChartConf"] = {"fill": ["#1ab394", "#d7d7d7"]}
+		}
+	}
+}
+
+function chunk(arr, size) {
+	var newArr = [];
+	for (var i = 0; i < arr.length; i += size) {
+		newArr.push(arr.slice(i, i + size));
+	}
+	return newArr;
+}
+
 function vmUsageCtrl($scope, vmUsageService) {
 	$scope.$on("vmDataPrepared", function (event, args) {
-		// render all cells first
 		var locsH = {};
 		$scope.vmData.forEach(function(vmObj) { locsH[vmObj.Location] = 0 });
 		var locs = Object.keys(locsH);
-		console.log(locs);
+		var locsParam = locs.join("&")
+		console.log(locsParam);
 
-		// regroup locs into three cols
-		vmUsageService.getVMUsage("eastus")
+		vmUsageService.getVMUsage(locsParam)
 			.success(function (data) {
-				$scope.vmUsage = data;
 				console.log("vmUsageData prepared");
-				console.log(data[0].CurrentValue);
-				console.log(data[0].Name.LocalizedValue);
+
+				injectPieChartData(data);
+				console.log("pieData injected");
+
+				$scope.vmUsage = chunk(data, Math.ceil(data.length / 3));
+				console.log("vmUsageData chunked");
+
 				$scope.loadingUsage = false;
 			})
 			.error(function (err) {

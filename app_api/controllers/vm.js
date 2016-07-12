@@ -52,7 +52,6 @@ module.exports.vmUsage = function(req, res) {
     })
     .then(function(data) {
       if (data.code === 0) {
-        console.log(data.output);
         var feedback = JSON.parse(data.output);
         if (feedback.code == false) {
           console.log("get_vm_usage execute fail");
