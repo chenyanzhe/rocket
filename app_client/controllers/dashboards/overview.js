@@ -108,15 +108,6 @@ function vmLocDistDrawerCtrl($scope) {
 	})
 };
 
-function injectPieChartData(arr) {
-	for (var i = 0; i < arr.length; i++) {
-		for (var j = 0; j < arr[i].usage.length; j++) {
-			arr[i].usage[j]["pieChartData"] = [arr[i].usage[j]["CurrentValue"], arr[i].usage[j]["Limit"]]
-			arr[i].usage[j]["pieChartConf"] = {"fill": ["#1ab394", "#d7d7d7"]}
-		}
-	}
-}
-
 function chunk(arr, size) {
 	var newArr = [];
 	for (var i = 0; i < arr.length; i += size) {
@@ -136,9 +127,6 @@ function vmUsageCtrl($scope, vmUsageService) {
 		vmUsageService.getVMUsage(locsParam)
 			.success(function (data) {
 				console.log("vmUsageData prepared");
-
-				injectPieChartData(data);
-				console.log("pieData injected");
 
 				$scope.vmUsage = chunk(data, Math.ceil(data.length / 3));
 				console.log("vmUsageData chunked");
