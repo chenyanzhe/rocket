@@ -59,24 +59,15 @@
                 <h3>{{ vmUsageItem.name | locationNameFormat }}</h3>
             </div>
             <div class="ibox-content">
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th>Resource Name</th>
-                        <th>Usage</th>
-                        <th>Limitation</th>
-                        <th> </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr ng-repeat="vmUsageMetric in vmUsageItem.usage">
-                        <td>{{ vmUsageMetric.Name.LocalizedValue }}</td>
-                        <td>{{ vmUsageMetric.CurrentValue }}</td>
-                        <td>{{ vmUsageMetric.Limit }}</td>
-                        <td><pie-chart data="vmUsageMetric.pieChartData" options="vmUsageMetric.pieChartConf"></pie-chart></td>
-                    </tr>
-                    </tbody>
-                </table>
+                <div ng-repeat="vmUsageMetric in vmUsageItem.usage">
+                    <div>
+                        <span>{{ vmUsageMetric.Name.LocalizedValue }}</span>
+                        <small class="pull-right">{{ vmUsageMetric.CurrentValue }} / {{ vmUsageMetric.Limit }}</small>
+                    </div>
+                    <div class="progress progress-small">
+                        <div style="width: {{ vmUsageMetric.CurrentValue * 100 / vmUsageMetric.Limit }}%;" class="progress-bar"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
