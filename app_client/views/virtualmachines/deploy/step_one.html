@@ -28,5 +28,5 @@
             </div>
         </div>
     </div>
-    <a ui-sref="virtualmachines.deploy.step_two" class="btn btn-primary">Next</a>
+    <a ui-sref="virtualmachines.deploy.step_two" eat-click-if="!finishOne" ng-disabled="!finishOne" class="btn btn-primary">Next</a>
 </fieldset>
