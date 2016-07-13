@@ -24,6 +24,43 @@ function MainCtrl() {
 
 };
 
+/**
+ * wizardCtrl - Controller for wizard functions
+ * used in Wizard view
+ */
+function wizardCtrl($scope, $rootScope) {
+    // All data will be store in this object
+    $scope.formData = {};
+
+    // After process wizard
+    $scope.processForm = function() {
+    	alert('Wizard completed');
+    };
+
+}
+
+function loadingCtrl($scope, $timeout){
+
+    $scope.runLoading11 = function () {
+        // start loading
+        $timeout(function() {
+            $scope.loading11 = 0.1;
+        }, 500);
+        $timeout(function() {
+            $scope.loading11 += 0.2;
+        }, 1000);
+        $timeout(function() {
+            $scope.loading11 += 0.3;
+        }, 1500);
+        $timeout(function() {
+            $scope.loading11 = false;
+        }, 2000);
+
+    };
+}
+
 angular
     .module('inspinia')
     .controller('MainCtrl', MainCtrl)
+    .controller('wizardCtrl', wizardCtrl)
+    .controller('loadingCtrl', loadingCtrl)

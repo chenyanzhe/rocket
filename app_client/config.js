@@ -7,7 +7,7 @@
  *
  */
 function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
-    $urlRouterProvider.otherwise("/dashboards/overview");
+    $urlRouterProvider.otherwise("/virtualmachines/deploy/step_one");
 
     $ocLazyLoadProvider.config({
         // Set to true if you want to see what and when is dynamically loaded
@@ -45,7 +45,37 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
         .state('virtualmachines.deploy', {
             url: "/deploy",
             templateUrl: "views/virtualmachines/deploy.html",
-            data: { pageTitle: 'Virtual Machines | Deploy' }
+            controller: wizardCtrl,
+            data: { pageTitle: 'Virtual Machines | Deploy' },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            files: ['lib/css/plugins/steps/jquery.steps.css']
+                        },
+                        {
+                            serie: true,
+                            name: 'angular-ladda',
+                            files: ['lib/js/plugins/ladda/spin.min.js', 'lib/js/plugins/ladda/ladda.min.js', 'lib/css/plugins/ladda/ladda-themeless.min.css','lib/js/plugins/ladda/angular-ladda.min.js']
+                        }
+                    ]);
+                }
+            }
+        })
+        .state('virtualmachines.deploy.step_one', {
+            url: '/step_one',
+            templateUrl: 'views/virtualmachines/deploy/step_one.html',
+            data: { pageTitle: 'Virtual Machines | Deploy | Step One' }
+        })
+        .state('virtualmachines.deploy.step_two', {
+            url: '/step_two',
+            templateUrl: 'views/virtualmachines/deploy/step_two.html',
+            data: { pageTitle: 'Virtual Machines | Deploy | Step Two' }
+        })
+        .state('virtualmachines.deploy.step_three', {
+            url: '/step_three',
+            templateUrl: 'views/virtualmachines/deploy/step_three.html',
+            data: { pageTitle: 'Virtual Machines | Deploy | Step Three' }
         })
 }
 angular

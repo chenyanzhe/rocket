@@ -1,0 +1,32 @@
+<fieldset>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Image To Upload</h5>
+                </div>
+                <div class="ibox-content">
+                    <table class="table table-striped" ng-controller="loadingCtrl">
+                        <thead>
+                        <tr>
+                            <th>Image Name</th>
+                            <th class="text-right">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>freebsd.vhd</td>
+                            <td class="text-right">
+                                <button ladda="loading11" type="button" ng-click="runLoading11()" class="ladda-button btn btn-xs btn-danger" data-style="expand-right">
+                                    Upload
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a ui-sref="virtualmachines.deploy.step_two" class="btn btn-primary">Next</a>
+</fieldset>
