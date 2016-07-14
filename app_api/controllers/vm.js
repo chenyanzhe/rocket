@@ -140,3 +140,40 @@ module.exports.vhdUpload = function(req, res) {
   //   sendJSONresponse(res, 200, staticData);
   // }, 2000);
 };
+
+module.exports.imgList = function(req, res) {
+  var params = [];
+  var shell = require('node-powershell').Shell;
+  shell.executionStringBuilder("./scripts/get_img_list.ps1", params)
+    .then(function(str) {
+        var ps = new shell(str);
+        console.log("get_img_list started");
+        console.log(Date.now());
+        return ps.execute();
+    })
+    .then(function(data) {
+      if (data.code === 0) {
+        var feedback = JSON.parse(data.output);
+        if (feedback.code == false) {
+          console.log("get_img_list execute fail");
+          console.log(Date.now());
+          sendJSONresponse(res, 404, feedback.output);
+        } else {
+          console.log("get_img_list execute success");
+          console.log(Date.now());
+          sendJSONresponse(res, 200, feedback.output);
+        }
+      } else {
+        console.log("node subprocess abort");
+        sendJSONresponse(res, 404, "node subprocess abort");
+      }
+    })
+    .catch(function(err) {
+      console.log(err);
+      sendJSONresponse(res, 404, err);
+    });
+
+  // setTimeout(function(){
+  //   sendJSONresponse(res, 200, staticData);
+  // }, 2000);
+};

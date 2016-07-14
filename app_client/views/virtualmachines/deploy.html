@@ -12,10 +12,10 @@
                                 <a ui-sref=".step_one" class="btn-default"><span>Step 1.</span> Choose Image</a>
                             </li>
                             <li ui-sref-active="current">
-                                <a ui-sref=".step_two" class="btn-default"><span>Step 2.</span> Basic Configuration</a>
+                                <a ui-sref=".step_two" eat-click-if="!data.finishStepOne" class="btn-default"><span>Step 2.</span> Basic Configuration</a>
                             </li>
                             <li ui-sref-active="current">
-                                <a ui-sref=".step_three" class="btn-default"><span>Step 3.</span> Customization</a>
+                                <a ui-sref=".step_three" eat-click-if="!data.finishStepOne || !data.finishStepTwo " class="btn-default"><span>Step 3.</span> Customization</a>
                             </li>
                         </ul>
                     </div>

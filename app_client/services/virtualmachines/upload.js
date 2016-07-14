@@ -8,7 +8,12 @@ function vhdUploadService($http) {
 	}
 }
 
+function imgListService($http) {
+	return $http.get('/api/img_list');
+}
+
 angular
     .module('inspinia')
     .service('vhdToUploadService', vhdToUploadService)
     .service('vhdUploadService', vhdUploadService)
+    .service('imgListService', imgListService)

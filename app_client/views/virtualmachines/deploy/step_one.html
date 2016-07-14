@@ -42,19 +42,11 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>Freebsd 10.3</td>
+                        <tr ng-repeat="imgItem in data.imgList" ng-show="!imgLoading">
+                            <td>{{ imgItem.Name }}</td>
                             <td class="text-right">
-                                <button type="button" class="btn btn-xs btn-danger">
-                                    Choose
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Freebsd 10.2</td>
-                            <td class="text-right">
-                                <button type="button" class="btn btn-xs btn-danger">
-                                    Choose
+                                <button type="button" ng-click="chooseImgClicked($index)" ng-class="imgItem.isChosen ? 'btn btn-xs btn-danger' : 'btn btn-xs btn-default'">
+                                    {{ imgItem.buttonName }}
                                 </button>
                             </td>
                         </tr>
@@ -64,5 +56,5 @@
             </div>
         </div>
     </div>
-    <a ui-sref="virtualmachines.deploy.step_two" eat-click-if="!finishOne" ng-disabled="!finishOne" class="btn btn-primary">Next</a>
+    <a ui-sref="virtualmachines.deploy.step_two" eat-click-if="!data.finishStepOne" ng-disabled="!data.finishStepOne" class="btn btn-primary">Next</a>
 </fieldset>

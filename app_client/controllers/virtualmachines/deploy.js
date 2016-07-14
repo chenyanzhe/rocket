@@ -1,8 +1,9 @@
-function deployCtrl($scope, $timeout) {
-	$scope.finishOne = false;
-	$timeout(function() {
-        $scope.finishOne = true;
-    }, 10000);
+function deployCtrl($scope) {
+	$scope.data = {};
+	$scope.data.finishStepOne = false;
+	$scope.data.finsihStepTwo = false;
+	$scope.data.imgList = []
+	$scope.data.imgChoosedIdx = -1;
 };
 
 function uploadCtrl($scope, $interval, vhdToUploadService, vhdUploadService) {
@@ -62,8 +63,40 @@ function uploadCtrl($scope, $interval, vhdToUploadService, vhdUploadService) {
 	}
 }
 
-function chooseImageCtrl($scope) {
-	
+function chooseImageCtrl($scope, imgListService) {
+	$scope.imgListLoading = true;
+	imgListService
+		.success(function (data) {
+			// init data and states
+			$scope.data.imgList = data;
+			$scope.data.imgChoosedIdx = -1;
+			$scope.data.finishStepOne = false;
+
+			// inject some properties
+			for (var i = 0; i < $scope.data.imgList.length; i++) {
+				$scope.data.imgList[i].buttonName = "Choose";
+				$scope.data.imgList[i].isChosen = false;
+			}
+			$scope.imgListLoading = false;
+		})
+		.error(function (err) {
+			console.log(err);
+		});
+
+	$scope.chooseImgClicked = function(idx) {
+		$scope.data.imgChoosedIdx = idx;
+		// change style of clicked button
+		for (var i = 0; i < $scope.data.imgList.length; i++) {
+			if (i != idx) {
+				$scope.data.imgList[i].buttonName = "Choose";
+				$scope.data.imgList[i].isChosen = false;
+			} else {
+				$scope.data.imgList[idx].buttonName = "Choosed";
+				$scope.data.imgList[i].isChosen = true;
+			}
+		}
+		$scope.data.finishStepOne = true;
+	}
 }
 
 angular

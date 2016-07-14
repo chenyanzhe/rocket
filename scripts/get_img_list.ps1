@@ -25,7 +25,7 @@ function get_storage_account_key()
     return $ret
 }
 
-function get_vhd_list()
+function get_img_list()
 {
     $storageAccountKeyRet = get_storage_account_key
     if ($ret.Get_Item("code") -eq $False) {
@@ -36,7 +36,7 @@ function get_vhd_list()
                             -StorageAccountKey $storageAccountKey `
                             -ErrorVariable err
     if ($? -eq $False) {
-        log_msg "get_vhd_list: New-AzureStorageContext failed"
+        log_msg "get_img_list: New-AzureStorageContext failed"
         log_msg $err
         $ret = @{"code" = $False; "output" = $err}
         return $ret
@@ -46,7 +46,7 @@ function get_vhd_list()
                                      -Context $ctx `
                                      -ErrorVariable err
     if ($? -eq $False) {
-        log_msg "get_vhd_list: Get-AzureStorageBlob failed"
+        log_msg "get_img_list: Get-AzureStorageBlob failed"
         log_msg $err
         $ret = @{"code" = $False; "output" = $err}
         return $ret
@@ -61,4 +61,4 @@ if ($ret.Get_Item("code") -eq $False) {
     return $ret | ConvertTo-Json
 }
 
-return get_vhd_list | ConvertTo-Json
+return get_img_list | ConvertTo-Json
