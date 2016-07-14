@@ -39,28 +39,7 @@ function wizardCtrl($scope, $rootScope) {
 
 }
 
-function loadingCtrl($scope, $timeout){
-
-    $scope.runLoading11 = function () {
-        // start loading
-        $timeout(function() {
-            $scope.loading11 = 0.1;
-        }, 500);
-        $timeout(function() {
-            $scope.loading11 += 0.2;
-        }, 1000);
-        $timeout(function() {
-            $scope.loading11 += 0.3;
-        }, 1500);
-        $timeout(function() {
-            $scope.loading11 = false;
-        }, 2000);
-
-    };
-}
-
 angular
     .module('inspinia')
     .controller('MainCtrl', MainCtrl)
     .controller('wizardCtrl', wizardCtrl)
-    .controller('loadingCtrl', loadingCtrl)

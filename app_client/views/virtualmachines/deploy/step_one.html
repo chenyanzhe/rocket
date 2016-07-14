@@ -6,7 +6,7 @@
                     <h5>Image To Upload</h5>
                 </div>
                 <div class="ibox-content">
-                    <table class="table table-striped" ng-controller="loadingCtrl">
+                    <table class="table table-striped" ng-controller="uploadCtrl">
                         <thead>
                         <tr>
                             <th>Image Name</th>
@@ -14,11 +14,11 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>freebsd.vhd</td>
+                        <tr ng-repeat="vhdItem in vhdToUpload" ng-show="!vhdToUploadLoading">
+                            <td>{{ vhdItem.name }}</td>
                             <td class="text-right">
-                                <button ladda="loading11" type="button" ng-click="runLoading11()" class="ladda-button btn btn-xs btn-danger" data-style="expand-right">
-                                    Upload
+                                <button ladda="vhdItem.uploading" type="button" ng-click="uploadClicked($index)" ng-disabled="vhdItem.disabled" class="ladda-button btn btn-xs btn-danger" data-style="expand-right">
+                                    {{ vhdItem.buttonName }}
                                 </button>
                             </td>
                         </tr>

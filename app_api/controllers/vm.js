@@ -76,3 +76,21 @@ module.exports.vmUsage = function(req, res) {
   //   sendJSONresponse(res, 200, staticData);
   // }, 2000);
 };
+
+var staticData = [
+  {
+    "name": "freebsd10.3.vhd"
+  },
+  {
+    "name": "freebsd10.2.vhd"
+  },
+  {
+    "name": "freebsd10.1.vhd"
+  }
+]
+
+module.exports.vhdList = function(req, res) {
+  setTimeout(function(){
+    sendJSONresponse(res, 200, staticData);
+  }, 2000);
+};
