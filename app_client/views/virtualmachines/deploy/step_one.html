@@ -27,6 +27,42 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-lg-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Image Read To Use</h5>
+                </div>
+                <div class="ibox-content">
+                    <table class="table table-striped" ng-controller="chooseImageCtrl">
+                        <thead>
+                        <tr>
+                            <th>Image Name</th>
+                            <th class="text-right">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Freebsd 10.3</td>
+                            <td class="text-right">
+                                <button type="button" class="btn btn-xs btn-danger">
+                                    Choose
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Freebsd 10.2</td>
+                            <td class="text-right">
+                                <button type="button" class="btn btn-xs btn-danger">
+                                    Choose
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
     <a ui-sref="virtualmachines.deploy.step_two" eat-click-if="!finishOne" ng-disabled="!finishOne" class="btn btn-primary">Next</a>
 </fieldset>

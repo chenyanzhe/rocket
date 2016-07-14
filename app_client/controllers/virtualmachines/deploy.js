@@ -62,7 +62,12 @@ function uploadCtrl($scope, $interval, vhdToUploadService, vhdUploadService) {
 	}
 }
 
+function chooseImageCtrl($scope) {
+	
+}
+
 angular
     .module('inspinia')
     .controller('deployCtrl', deployCtrl)
     .controller('uploadCtrl', uploadCtrl)
+    .controller('chooseImageCtrl', chooseImageCtrl)
