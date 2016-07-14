@@ -1,5 +1,5 @@
 param (
-    [string]$locations = "eastus&eastus2&westus&eastasia&southeastasia&japaneast"
+    [string]$locations = "fakeLocation"
 )
 
 $currentWorkingDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
