@@ -1,12 +1,12 @@
 <fieldset>
-    <div class="row">
+    <div class="row" ng-controller="uploadCtrl">
         <div class="col-lg-6">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Image To Upload</h5>
                 </div>
                 <div class="ibox-content">
-                    <table class="table table-striped" ng-controller="uploadCtrl">
+                    <table class="table table-striped">
                         <thead>
                         <tr>
                             <th>Image Name</th>
@@ -28,13 +28,14 @@
             </div>
         </div>
 
-        <div class="col-lg-6">
+        <div class="col-lg-6" ng-controller="chooseImageCtrl">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Image Read To Use</h5>
+                    <button ladda="uploadData.imgListLoading" type="button" ng-click="refreshImgList()" class="ladda-button btn btn-xs btn-primary pull-right" data-style="zoom-in">Refresh</button>
                 </div>
                 <div class="ibox-content">
-                    <table class="table table-striped" ng-controller="chooseImageCtrl">
+                    <table class="table table-striped">
                         <thead>
                         <tr>
                             <th>Image Name</th>
@@ -42,7 +43,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="imgItem in data.imgList" ng-show="!imgLoading">
+                        <tr ng-repeat="imgItem in data.imgList" ng-show="!uploadData.imgListLoading">
                             <td>{{ imgItem.Name }}</td>
                             <td class="text-right">
                                 <button type="button" ng-click="chooseImgClicked($index)" ng-class="imgItem.isChosen ? 'btn btn-xs btn-danger' : 'btn btn-xs btn-default'">

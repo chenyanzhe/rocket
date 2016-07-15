@@ -9,7 +9,9 @@ function vhdUploadService($http) {
 }
 
 function imgListService($http) {
-	return $http.get('/api/img_list');
+	this.imgListFunc = function() {
+		return $http.get('/api/img_list');
+	}
 }
 
 angular

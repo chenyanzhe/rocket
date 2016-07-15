@@ -7,6 +7,8 @@ function deployCtrl($scope) {
 };
 
 function uploadCtrl($scope, $interval, vhdToUploadService, vhdUploadService) {
+	$scope.uploadData = {};
+	$scope.uploadData.imgListLoading = false;
 	$scope.vhdToUploadLoading = true;
 	vhdToUploadService
 		.success(function (data) {
@@ -32,6 +34,8 @@ function uploadCtrl($scope, $interval, vhdToUploadService, vhdUploadService) {
 			}
 		}
 
+		$scope.uploadData.imgListLoading = true;
+
 		// upload vhd
 		console.log("uploading" + $scope.vhdToUpload[idx].name);
 
@@ -49,9 +53,11 @@ function uploadCtrl($scope, $interval, vhdToUploadService, vhdUploadService) {
 					}
 				}
 
+				$scope.uploadData.imgListLoading = false;
 			})
 			.error(function (err) {
 				console.log(err);
+				$scope.uploadData.imgListLoading = false;
 			});
 
 		// loading upload button animation
@@ -64,8 +70,8 @@ function uploadCtrl($scope, $interval, vhdToUploadService, vhdUploadService) {
 }
 
 function chooseImageCtrl($scope, imgListService) {
-	$scope.imgListLoading = true;
-	imgListService
+	$scope.uploadData.imgListLoading = true;
+	imgListService.imgListFunc()
 		.success(function (data) {
 			// init data and states
 			$scope.data.imgList = data;
@@ -77,7 +83,7 @@ function chooseImageCtrl($scope, imgListService) {
 				$scope.data.imgList[i].buttonName = "Choose";
 				$scope.data.imgList[i].isChosen = false;
 			}
-			$scope.imgListLoading = false;
+			$scope.uploadData.imgListLoading = false;
 		})
 		.error(function (err) {
 			console.log(err);
@@ -96,6 +102,27 @@ function chooseImageCtrl($scope, imgListService) {
 			}
 		}
 		$scope.data.finishStepOne = true;
+	}
+
+	$scope.refreshImgList = function() {
+		$scope.uploadData.imgListLoading = true;
+		imgListService.imgListFunc()
+			.success(function (data) {
+				// init data and states
+				$scope.data.imgList = data;
+				$scope.data.imgChoosedIdx = -1;
+				$scope.data.finishStepOne = false;
+
+				// inject some properties
+				for (var i = 0; i < $scope.data.imgList.length; i++) {
+					$scope.data.imgList[i].buttonName = "Choose";
+					$scope.data.imgList[i].isChosen = false;
+				}
+				$scope.uploadData.imgListLoading = false;
+			})
+			.error(function (err) {
+				console.log(err);
+			});
 	}
 }
 
