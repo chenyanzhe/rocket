@@ -82,6 +82,11 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
             templateUrl: 'views/virtualmachines/deploy/step_three.html',
             data: { pageTitle: 'Virtual Machines | Deploy | Step Three' }
         })
+        .state('virtualmachines.deploy.step_four', {
+            url: '/step_four',
+            templateUrl: 'views/virtualmachines/deploy/step_four.html',
+            data: { pageTitle: 'Virtual Machines | Deploy | Step Four' }
+        })
 }
 angular
     .module('inspinia')

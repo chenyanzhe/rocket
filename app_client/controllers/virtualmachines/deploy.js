@@ -138,9 +138,14 @@ function basicConfigCtrl($scope, avaLocsService) {
 		});
 }
 
+function chooseSizeCtrl($scope) {
+	$scope.data.basicConfig.vmSize = $scope.data.basicConfig.loc.VirtualMachineRoleSizes.split(" ");
+}
+
 angular
     .module('inspinia')
     .controller('deployCtrl', deployCtrl)
     .controller('uploadCtrl', uploadCtrl)
     .controller('chooseImageCtrl', chooseImageCtrl)
     .controller('basicConfigCtrl', basicConfigCtrl)
+    .controller('chooseSizeCtrl', chooseSizeCtrl)

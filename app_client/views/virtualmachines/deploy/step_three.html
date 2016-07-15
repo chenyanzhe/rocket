@@ -1,8 +1,24 @@
 <fieldset>
-    <h2>Terms and Conditions</h2>
-    <input id="acceptTerms" name="acceptTerms" type="checkbox" ng-model="formData.terms" class="required"> <label for="acceptTerms">I agree with the Terms and Conditions.</label>
-</fieldset>
-<fieldset class="m-t-md">
+    <h2>Choose virtual machine size</h2>
+    <div class="row" ng-controller="chooseSizeCtrl">
+    	<div class="col-lg-7">
+            <div class="form-group">
+                <label>Available sizes in {{data.basicConfig.loc.Name}} *</label>
+                <div class="input-group">
+                    <select chosen id="sizes" data-placeholder="Choose size..." class="chosen-select" style="width:350px;" tabindex="4" ng-model="data.basicConfig.chosenSize" ng-options="size for size in data.basicConfig.vmSize">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+        	<h4></h4>
+            <p></p>
+            <p class="text-center">
+            	<a href="" ng-disabled="true"><i class="fa fa-sign-in big-icon"></i></a>
+            </p>
+        </div>
+    </div>
     <a ui-sref="virtualmachines.deploy.step_two" class="btn btn-default">Previous</a>
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <a ui-sref="virtualmachines.deploy.step_four" class="btn btn-primary">Next</a>
 </fieldset>

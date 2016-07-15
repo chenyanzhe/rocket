@@ -1,0 +1,11 @@
+<fieldset>
+    <h2>Summary</h2>
+    <h3>Virtual Machine Name: {{ data.basicConfig.vmname }}</h3>
+    <h3>User Name: {{ data.basicConfig.username }}</h3>
+    <h3>Location: {{ data.basicConfig.loc.Name }}</h3>
+    <h3>Size: {{ data.basicConfig.chosenSize }}</h3>
+</fieldset>
+<fieldset class="m-t-md">
+    <a ui-sref="virtualmachines.deploy.step_three" class="btn btn-default">Previous</a>
+    <button type="submit" class="btn btn-primary">Finalize</button>
+</fieldset>
