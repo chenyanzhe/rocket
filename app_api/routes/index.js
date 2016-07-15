@@ -7,5 +7,6 @@ router.get('/vm_usage/:location', ctrlVM.vmUsage);
 router.get('/vhd_list', ctrlVM.vhdList);
 router.get('/vhd_upload/:localpath', ctrlVM.vhdUpload);
 router.get('/img_list', ctrlVM.imgList);
+router.get('/ava_locs', ctrlVM.avaLocs);
 
 module.exports = router;

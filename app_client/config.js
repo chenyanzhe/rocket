@@ -7,7 +7,7 @@
  *
  */
 function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
-    $urlRouterProvider.otherwise("/virtualmachines/deploy/step_one");
+    $urlRouterProvider.otherwise("/virtualmachines/deploy/step_two");
 
     $ocLazyLoadProvider.config({
         // Set to true if you want to see what and when is dynamically loaded
@@ -57,6 +57,11 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
                             serie: true,
                             name: 'angular-ladda',
                             files: ['lib/js/plugins/ladda/spin.min.js', 'lib/js/plugins/ladda/ladda.min.js', 'lib/css/plugins/ladda/ladda-themeless.min.css','lib/js/plugins/ladda/angular-ladda.min.js']
+                        },
+                        {
+                            insertBefore: '#loadBefore',
+                            name: 'localytics.directives',
+                            files: ['lib/css/plugins/chosen/chosen.css','lib/js/plugins/chosen/chosen.jquery.js','lib/js/plugins/chosen/chosen.js']
                         }
                     ]);
                 }

@@ -2,8 +2,13 @@ function deployCtrl($scope) {
 	$scope.data = {};
 	$scope.data.finishStepOne = false;
 	$scope.data.finsihStepTwo = false;
-	$scope.data.imgList = []
+	$scope.data.imgList = [];
 	$scope.data.imgChoosedIdx = -1;
+	$scope.data.basicConfig = {};
+	$scope.data.locList = [
+		"asdf",
+		"fgdfb"
+	];
 };
 
 function uploadCtrl($scope, $interval, vhdToUploadService, vhdUploadService) {
