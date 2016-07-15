@@ -5,10 +5,7 @@ function deployCtrl($scope) {
 	$scope.data.imgList = [];
 	$scope.data.imgChoosedIdx = -1;
 	$scope.data.basicConfig = {};
-	$scope.data.locList = [
-		"asdf",
-		"fgdfb"
-	];
+	$scope.data.locList = [];
 };
 
 function uploadCtrl($scope, $interval, vhdToUploadService, vhdUploadService) {
@@ -131,8 +128,19 @@ function chooseImageCtrl($scope, imgListService) {
 	}
 }
 
+function basicConfigCtrl($scope, avaLocsService) {
+	avaLocsService
+		.success(function (data) {
+			$scope.data.locList = data;
+		})
+		.error(function (err) {
+			console.log(err);
+		});
+}
+
 angular
     .module('inspinia')
     .controller('deployCtrl', deployCtrl)
     .controller('uploadCtrl', uploadCtrl)
     .controller('chooseImageCtrl', chooseImageCtrl)
+    .controller('basicConfigCtrl', basicConfigCtrl)

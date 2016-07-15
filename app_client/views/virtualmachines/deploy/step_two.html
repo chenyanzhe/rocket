@@ -1,7 +1,7 @@
 <fieldset>
     <h2>Basic Configuration</h2>
 
-    <div class="row">
+    <div class="row" ng-controller="basicConfigCtrl">
         <div class="col-lg-8">
             <div class="form-group">
                 <label>Virtual Machine Name *</label>
@@ -24,7 +24,7 @@
             <div class="form-group">
                 <label>Location *</label>
                 <div class="input-group">
-                    <select chosen id="locations" data-placeholder="Choose location..." class="chosen-select" style="width:350px;" tabindex="4" ng-model="data.basicConfig.loc" ng-options="loc for loc in data.locList">
+                    <select chosen id="locations" data-placeholder="Choose location..." class="chosen-select" style="width:350px;" tabindex="4" ng-model="data.basicConfig.loc" ng-options="loc.Name for loc in data.locList">
                         <option value=""></option>
                     </select>
                 </div>

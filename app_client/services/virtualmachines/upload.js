@@ -14,8 +14,13 @@ function imgListService($http) {
 	}
 }
 
+function avaLocsService($http) {
+	return $http.get('/api/ava_locs');
+}
+
 angular
     .module('inspinia')
     .service('vhdToUploadService', vhdToUploadService)
     .service('vhdUploadService', vhdUploadService)
     .service('imgListService', imgListService)
+    .service('avaLocsService', avaLocsService)
