@@ -30,9 +30,10 @@ app.use(function(req, res) {
 app.use(function(req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
-    next(err);
+    //next(err);
 });
 
+/*
 // error handlers
 
 // development error handler
@@ -56,6 +57,7 @@ app.use(function(err, req, res, next) {
         error: {}
     });
 });
+*/
 
 
 module.exports = app;

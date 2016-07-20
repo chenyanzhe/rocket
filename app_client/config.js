@@ -7,7 +7,7 @@
  *
  */
 function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
-    $urlRouterProvider.otherwise("/virtualmachines/deploy/step_two");
+    $urlRouterProvider.otherwise("/virtualmachines/deploy/step_one");
 
     $ocLazyLoadProvider.config({
         // Set to true if you want to see what and when is dynamically loaded
