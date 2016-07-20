@@ -13,6 +13,13 @@ module.exports.lastWeek = function(request, response) {
 	var aggregatedUsage = [];
 	var usageSegment;
 
+	var rateCardDict = {};
+	var aggregatedUsageDict = {};
+	var aggregatedUsageClassicDict = {};
+
+	var aggregatedPrices = [];
+	var aggregatedClassicPrices = [];
+
 	function getAccessToken(callback) {
 		var request = require("request");
 
@@ -71,7 +78,7 @@ module.exports.lastWeek = function(request, response) {
 		  url: 'https://management.azure.com/subscriptions/c4528d9e-c99a-48bb-b12d-fde2176a43b8/providers/Microsoft.Commerce/UsageAggregates',
 		  qs: 
 		   { 'api-version': '2015-06-01-preview',
-		     reportedStartTime: '2016-07-18T00:00:00+00:00',
+		     reportedStartTime: '2016-07-19T00:00:00+00:00',
 		     reportedEndTime: '2016-07-20T00:00:00+00:00',
 		     aggregationGranularity: 'Daily',
 		     showDetails: 'true' },
@@ -127,9 +134,66 @@ module.exports.lastWeek = function(request, response) {
 		});
 	}
 
+	function processData(callback) {
+		// Create RateCard Dictionary
+		for (var i = 0; i < rateCard.Meters.length; i++) {
+			rateCardDict[rateCard.Meters[i].MeterId] = rateCard.Meters[i];
+		}
+		// Create AggregatedUsage Dictionary
+		for (var i = 0; i < aggregatedUsage.length; i++) {
+			for (var j = 0; j < aggregatedUsage[i].value.length; j++) {
+				var item = aggregatedUsage[i].value[j];
+				if ("project" in item.properties.infoFields) {
+					var key = item.properties.infoFields.project;
+					if (key in aggregatedUsageClassicDict) {
+						aggregatedUsageClassicDict[key].push(item);
+					} else {
+						aggregatedUsageClassicDict[key] = new Array(item);
+					}
+				} else if ("instanceData" in item.properties) {
+					var needParse = item.properties.instanceData;
+					var instanceDataJson;
+					try {
+					    instanceDataJson = JSON.parse(needParse);
+					}catch(e){
+						console.log(needParse);
+					}
+					var key = instanceDataJson["Microsoft.Resources"].resourceUri;
+					if (key in aggregatedUsageDict) {
+						aggregatedUsageDict[key].push(item);
+					} else {
+						aggregatedUsageDict[key] = new Array(item);
+					}
+				} else {
+					console.log("do not have both !!!!!");
+				}
+			}
+		}
+		for (key in aggregatedUsageDict) {
+			var cost = 0;
+			for (var i = 0; i < aggregatedUsageDict[key].length; i++) {
+				var quantity = aggregatedUsageDict[key][i].properties.quantity;
+				var rateKey = aggregatedUsageDict[key][i].properties.meterId;
+				var rates = rateCardDict[rateKey].MeterRates[0]
+				// console.log("item = " + key);
+				// console.log("quantity = " + quantity);
+				// console.log("rates = " + rates);
+				cost += quantity * rates;
+				// break;
+			}
+			// break;
+			console.log("item = " + key);
+			console.log("cost = " + cost);
+			break;
+		}
+
+		callback(null);
+	}
+
 	async.series([
 	    getAccessToken,
-	    getData
+	    getData,
+	    processData
 	], function (err) {
 		if (err) {
 			sendJSONresponse(response, 404, err);
@@ -137,7 +201,7 @@ module.exports.lastWeek = function(request, response) {
 		}
 		var nPages = aggregatedUsage.length;
 		console.log("aggregatedUsage have " + nPages + " pages");
-		sendJSONresponse(response, 200, aggregatedUsage[nPages-1]);
+		sendJSONresponse(response, 200, aggregatedUsage[0]);
 	});
 	
 };
