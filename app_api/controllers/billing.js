@@ -78,9 +78,10 @@ module.exports.lastWeek = function(request, response) {
 		  url: 'https://management.azure.com/subscriptions/c4528d9e-c99a-48bb-b12d-fde2176a43b8/providers/Microsoft.Commerce/UsageAggregates',
 		  qs: 
 		   { 'api-version': '2015-06-01-preview',
-		     reportedStartTime: '2016-07-19T00:00:00+00:00',
-		     reportedEndTime: '2016-07-20T00:00:00+00:00',
-		     aggregationGranularity: 'Daily',
+		     reportedStartTime: '2016-07-20T00:00:00+00:00',
+		     reportedEndTime: '2016-07-20T15:00:00+00:00',
+		     aggregationGranularity: 'Hourly',
+		     //aggregationGranularity: 'Daily',
 		     showDetails: 'true' },
 		  headers: 
 		   { 'postman-token': '5dedff2e-5405-205a-593f-aabf164b6888',
@@ -108,16 +109,15 @@ module.exports.lastWeek = function(request, response) {
 
 	function getAggregatedUsage(innerCallback) {
 		async.doWhilst(
-		    getAggregatedUsageHelper,
-		    hasNextPage,
-		    function (err) {
-		    	console.log("final callback")
-				if (err) {
-					sendJSONresponse(response, 404, err);
-					return;
-				}
-				innerCallback(null);
-			}
+      getAggregatedUsageHelper,
+      hasNextPage,
+      function (err) {
+        if (err) {
+          sendJSONresponse(response, 404, err);
+          return;
+        }
+        innerCallback(null);
+      }
 		);
 	}
 
@@ -165,7 +165,7 @@ module.exports.lastWeek = function(request, response) {
 						aggregatedUsageDict[key] = new Array(item);
 					}
 				} else {
-					console.log("do not have both !!!!!");
+					console.log("Do not have valid instanceData and infoFields");
 				}
 			}
 		}
@@ -174,18 +174,43 @@ module.exports.lastWeek = function(request, response) {
 			for (var i = 0; i < aggregatedUsageDict[key].length; i++) {
 				var quantity = aggregatedUsageDict[key][i].properties.quantity;
 				var rateKey = aggregatedUsageDict[key][i].properties.meterId;
-				var rates = rateCardDict[rateKey].MeterRates[0]
-				// console.log("item = " + key);
-				// console.log("quantity = " + quantity);
-				// console.log("rates = " + rates);
+        var rates = 0;
+        if (rateKey in rateCardDict) {
+          rates = rateCardDict[rateKey].MeterRates[0]
+        } else {
+          console.log("Key " + rateKey + " is not in rate card");
+        }
 				cost += quantity * rates;
-				// break;
 			}
-			// break;
-			console.log("item = " + key);
-			console.log("cost = " + cost);
-			break;
+      aggregatedPrices.push([key, cost.toFixed(2)]);
 		}
+
+    aggregatedPrices.sort(
+      function(a, b) {
+        return b[1] - a[1];
+      }
+    );
+
+    for (var i = 0; i < 20; i++) {
+      var uri = aggregatedPrices[i][0];
+      var prices = aggregatedPrices[i][1];
+      var rgName;
+      var type;
+      var name;
+
+      var uriArr = uri.split("/")
+      name = uriArr[uriArr.length-1];
+      for (var j = 1; j < uriArr.length; j++) {
+        if (uriArr[j-1] === "resourceGroups")
+          rgName = uriArr[j];
+        else if (uriArr[j-1] === "providers")
+          type = uriArr[j] + "/" + uriArr[j+1];
+      }
+      console.log(name);
+      console.log("\t" + rgName);
+      console.log("\t" + type);
+      console.log("\t" + prices);
+    }
 
 		callback(null);
 	}
@@ -203,5 +228,4 @@ module.exports.lastWeek = function(request, response) {
 		console.log("aggregatedUsage have " + nPages + " pages");
 		sendJSONresponse(response, 200, aggregatedUsage[0]);
 	});
-	
 };
