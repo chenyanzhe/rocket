@@ -20,6 +20,8 @@ module.exports.lastWeek = function(request, response) {
 	var aggregatedPrices = [];
 	var aggregatedClassicPrices = [];
 
+  var retJson = [];
+
 	function getAccessToken(callback) {
 		var request = require("request");
 
@@ -79,9 +81,9 @@ module.exports.lastWeek = function(request, response) {
 		  qs: 
 		   { 'api-version': '2015-06-01-preview',
 		     reportedStartTime: '2016-07-20T00:00:00+00:00',
-		     reportedEndTime: '2016-07-20T15:00:00+00:00',
-		     aggregationGranularity: 'Hourly',
-		     //aggregationGranularity: 'Daily',
+		     reportedEndTime: '2016-07-21T00:00:00+00:00',
+		     //aggregationGranularity: 'Hourly',
+		     aggregationGranularity: 'Daily',
 		     showDetails: 'true' },
 		  headers: 
 		   { 'postman-token': '5dedff2e-5405-205a-593f-aabf164b6888',
@@ -191,9 +193,9 @@ module.exports.lastWeek = function(request, response) {
       }
     );
 
-    for (var i = 0; i < 20; i++) {
+    for (var i = 0; i < aggregatedPrices.length; i++) {
       var uri = aggregatedPrices[i][0];
-      var prices = aggregatedPrices[i][1];
+      var cost = aggregatedPrices[i][1];
       var rgName;
       var type;
       var name;
@@ -206,10 +208,15 @@ module.exports.lastWeek = function(request, response) {
         else if (uriArr[j-1] === "providers")
           type = uriArr[j] + "/" + uriArr[j+1];
       }
-      console.log(name);
-      console.log("\t" + rgName);
-      console.log("\t" + type);
-      console.log("\t" + prices);
+
+      var jsonObj = {};
+
+      jsonObj["name"] = name;
+      jsonObj["rgName"] = rgName;
+      jsonObj["type"] = type;
+      jsonObj["cost"] = cost;
+
+      retJson.push(jsonObj);
     }
 
 		callback(null);
@@ -224,8 +231,6 @@ module.exports.lastWeek = function(request, response) {
 			sendJSONresponse(response, 404, err);
 			return;
 		}
-		var nPages = aggregatedUsage.length;
-		console.log("aggregatedUsage have " + nPages + " pages");
-		sendJSONresponse(response, 200, aggregatedUsage[0]);
+		sendJSONresponse(response, 200, retJson);
 	});
 };
