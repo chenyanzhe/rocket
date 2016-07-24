@@ -7,6 +7,8 @@ var bodyParser = require('body-parser');
 var uglifyJs = require('uglify-js');
 var fs = require('fs');
 
+require('./app_api/models/db');
+
 var routesApi = require('./app_api/routes/index');
 
 var app = express();
