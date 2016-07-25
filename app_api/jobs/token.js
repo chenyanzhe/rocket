@@ -1,5 +1,3 @@
-require('dotenv').load();
-
 module.exports.getAccessToken = function () {
     var request = require("request");
 
@@ -24,6 +22,6 @@ module.exports.getAccessToken = function () {
         if (err) throw new Error(err);
         var ret = JSON.parse(body);
         global.access_token = ret.token_type + " " + ret.access_token;
-        console.log("getAccessToken done!", global.access_token);
+        console.log("access token updated!");
     });
 };

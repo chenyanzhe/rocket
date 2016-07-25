@@ -1,17 +1,146 @@
-// create a bunch of jobs here
-var tokenWorker = require('./token');
+require('dotenv').load();
+
+/* ----------------------------------------------------------------------------------------------------------------*/
+
+/*
+ * Setup MongoDB
+ */
+
+var mongoose = require('mongoose');
+
+// CAPTURE APP TERMINATION / RESTART EVENTS
+// To be called when process is restarted or terminated
+var gracefulShutdown = function(msg, callback) {
+    mongoose.connection.close(function() {
+        console.log('Mongoose disconnected through ' + msg);
+        callback();
+    });
+};
+// For nodemon restarts
+process.once('SIGUSR2', function() {
+    gracefulShutdown('nodemon restart', function() {
+        process.kill(process.pid, 'SIGUSR2');
+    });
+});
+// For app termination
+process.on('SIGINT', function() {
+    gracefulShutdown('app termination', function() {
+        process.exit(0);
+    });
+});
+// For Heroku app termination
+process.on('SIGTERM', function() {
+    gracefulShutdown('Heroku app termination', function() {
+        process.exit(0);
+    });
+});
+
+/* ----------------------------------------------------------------------------------------------------------------*/
+
+/*
+ * Setup background jobs
+ */
 
 var CronJob = require('cron').CronJob;
 
-var tokenJob = new CronJob('*/10 * * * * *', function() {
-        console.log('tokenJob started!');
-        tokenWorker.getAccessToken();
-    }, function () {
-        console.log('tokenJob stopped!');
-    },
-    true /* Start the job right now */
-);
+function startTokenJob() {
+    var tokenWorker = require('./token').getAccessToken;
+    var tokenJob = new CronJob({
+        cronTime: '0 */31 * * * *', // run every 31 minutes
+        onTick: function () {
+            console.log('INIT: tokenJob started!');
+            tokenWorker();
+        },
+        start: true
+    });
+}
 
-module.exports.getJobs = function () {
-    return [tokenJob];
-};
+function startSubscriptionJob() {
+    var subscriptionWorker = require('./subscription').getSubscriptionList;
+    var subscriptionJob = new CronJob({
+        cronTime: '0 0 */59 * * *', // run every 59 minutes
+        onTick: function () {
+            console.log('INIT: subscriptionJob started!');
+            subscriptionWorker();
+        },
+        start: true,
+        runOnInit: true
+    });
+}
+
+/* ----------------------------------------------------------------------------------------------------------------*/
+
+/*
+ * Launcher
+ */
+
+function connectDB(callback) {
+    console.log("INIT: connecting db ...");
+    mongoose.connect(process.env.DB_URI);
+
+    // CONNECTION EVENTS
+    mongoose.connection.on('connected', function() {
+        console.log('\tMongoose connected to ' + process.env.DB_URI);
+        callback(null);
+    });
+    mongoose.connection.on('error', function(err) {
+        console.log('\tMongoose connection error: ' + err);
+    });
+    mongoose.connection.on('disconnected', function() {
+        console.log('\tMongoose disconnected');
+    });
+}
+
+function setupSchema(callback) {
+    console.log("INIT: setting up schema ...");
+    require('../models/subscription');
+    callback(null);
+}
+
+function getAccessToken(callback) {
+    console.log("INIT: access token is preparing ...");
+    var request = require("request");
+
+    var options = { method: 'POST',
+        url: 'https://login.microsoftonline.com/microsoft.onmicrosoft.com/oauth2/token',
+        qs: { 'api-version': '1.0' },
+        headers:
+        {
+            'cache-control': 'no-cache',
+            'content-type': 'application/x-www-form-urlencoded'
+        },
+        form:
+        {
+            grant_type: 'client_credentials',
+            resource: 'https://management.core.windows.net/',
+            client_id: process.env.CLIENT_ID,
+            client_secret: process.env.CLIENT_SECRET
+        }
+    };
+
+    request(options, function (err, res, body) {
+        if (err) throw new Error(err);
+        // TODO: handle exceptions here
+        var ret = JSON.parse(body);
+        global.access_token = ret.token_type + " " + ret.access_token;
+        console.log("INIT: access token is ready!");
+        callback(null);
+    });
+}
+
+function startCronJobs(callback) {
+    console.log("INIT: start cron jobs!");
+    startTokenJob();
+    startSubscriptionJob();
+    callback(null);
+}
+
+var async = require('async');
+async.series([
+    connectDB,
+    setupSchema,
+    getAccessToken,
+    startCronJobs
+], function (err) {
+    if (err) throw new Error(err);
+});

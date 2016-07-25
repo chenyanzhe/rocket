@@ -1,26 +1,20 @@
+require('dotenv').load();
+
 var mongoose = require('mongoose');
 var gracefulShutdown;
-var dbURI = 'mongodb://localhost/rocket';
-
-var jobs = require('../jobs/index');
+var dbURI = process.env.DB_URI;
 
 mongoose.connect(dbURI);
 
 // CONNECTION EVENTS
 mongoose.connection.on('connected', function() {
     console.log('Mongoose connected to ' + dbURI);
-    for (var i = 0; i < jobs.getJobs().length; i++) {
-        jobs.getJobs()[i].start();
-    }
 });
 mongoose.connection.on('error', function(err) {
     console.log('Mongoose connection error: ' + err);
 });
 mongoose.connection.on('disconnected', function() {
     console.log('Mongoose disconnected');
-    for (var i = 0; i < jobs.getJobs().length; i++) {
-        jobs.getJobs()[i].stop();
-    }
 });
 
 // CAPTURE APP TERMINATION / RESTART EVENTS
@@ -28,9 +22,6 @@ mongoose.connection.on('disconnected', function() {
 gracefulShutdown = function(msg, callback) {
     mongoose.connection.close(function() {
         console.log('Mongoose disconnected through ' + msg);
-        for (var i = 0; i < jobs.getJobs().length; i++) {
-            jobs.getJobs()[i].stop();
-        }
         callback();
     });
 };
