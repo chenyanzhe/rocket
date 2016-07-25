@@ -10,7 +10,7 @@ module.exports.getUsage = function () {
     subCursor.on('data', function (subItem) {
 
         var cToken = '';
-
+        var nPage = 0;
         function getAggregatedUsageHelper(cb) {
 
             var options = { method: 'GET',
@@ -18,8 +18,8 @@ module.exports.getUsage = function () {
                 qs: {
                     'api-version': '2015-06-01-preview',
                     reportedStartTime: '2016-07-20T00:00:00+00:00',
-                    reportedEndTime: '2016-07-20T03:00:00+00:00',
-                    aggregationGranularity: 'Hourly',
+                    reportedEndTime: '2016-07-21T00:00:00+00:00',
+                    aggregationGranularity: 'Daily',
                     showDetails: 'true'
                 },
                 headers: {
@@ -41,24 +41,111 @@ module.exports.getUsage = function () {
                 } else {
                     cToken = '';
                 }
-                console.log("One page done!");
+                nPage++;
+                var useSegmentArr = usageSegment.value;
+                if (nPage == 1) {
+                    console.log('hahaha', useSegmentArr.length);
+                    for (var i = 0; i < useSegmentArr.length; i++) {
+                        var instData = useSegmentArr[i].properties.instanceData;
+                        var infoData = useSegmentArr[i].properties.infoFields;
+                        if (typeof instData === "undefined" &&
+                            Object.keys(infoData).length === 0 &&
+                            infoData.constructor === Object) {
+                            // skip invalid data
+                            console.log('xxxxxxxx');
+                            continue;
+                        }
+                        if (typeof instData === "undefined") {
+                            // handle classic data
+                            Usg.update({
+                                    subscriptionId: subItem.subscriptionId,
+                                    resourceGroup: "classic",
+                                    resourceType: infoData.meteredService,
+                                    resourceName: infoData.project,
+                                    usageStartTime: useSegmentArr[i].properties.usageStartTime,
+                                    usageEndTime: useSegmentArr[i].properties.usageEndTime,
+                                    meterId: useSegmentArr[i].properties.meterId
+                                },
+                                {
+                                    subscriptionId: subItem.subscriptionId,
+                                    resourceGroup: "classic",
+                                    resourceType: infoData.meteredService,
+                                    resourceName: infoData.project,
+                                    usageStartTime: useSegmentArr[i].properties.usageStartTime,
+                                    usageEndTime: useSegmentArr[i].properties.usageEndTime,
+                                    meterId: useSegmentArr[i].properties.meterId,
+                                    quantity: useSegmentArr[i].properties.quantity
+                                }, {upsert: true}, function (err, usageItem) {
+                                    if (err) {
+                                        console.log(err, usageItem);
+                                    } else {
+                                        if (usageItem.upserted) {
+                                            // pass
+                                        } else {
+                                            console.log("existed", usageItem);
+                                        }
+                                    }
+                                });
+                        } else {
+                            // handle arm data
+                            var instDataJson = JSON.parse(instData);
+                            var resourceUri = instDataJson["Microsoft.Resources"].resourceUri;
+                            var uriArr = resourceUri.split("/");
+                            var rG, rT, rN = uriArr[uriArr.length - 1];
+                            for (var j = 1; j < uriArr.length; j++) {
+                                if (uriArr[j-1] === "resourceGroups")
+                                    rG = uriArr[j];
+                                else if (uriArr[j-1] === "providers")
+                                    rT = uriArr[j] + "/" + uriArr[j+1];
+                            }
+                            var usageItem = {
+                                subscriptionId: subItem.subscriptionId,
+                                resourceGroup: rG,
+                                resourceType: rT,
+                                resourceName: rN,
+                                usageStartTime: useSegmentArr[i].properties.usageStartTime,
+                                usageEndTime: useSegmentArr[i].properties.usageEndTime,
+                                meterId: useSegmentArr[i].properties.meterId,
+                                quantity: useSegmentArr[i].properties.quantity
+                            };
+                            Usg.update({
+                                    subscriptionId: usageItem.subscriptionId,
+                                    resourceGroup: usageItem.resourceGroup,
+                                    resourceType: usageItem.resourceType,
+                                    resourceName: usageItem.resourceName,
+                                    usageStartTime: usageItem.usageStartTime,
+                                    usageEndTime: usageItem.usageEndTime,
+                                    meterId: usageItem.meterId
+                                },
+                                usageItem, {upsert: true}, function (err, usageItem) {
+                                    if (err) {
+                                        console.log(err, usageItem);
+                                    } else {
+                                        if (usageItem.upserted) {
+                                            // pass
+                                        } else {
+                                            console.log("existed", usageItem);
+                                        }
+                                    }
+                                });
+                        }
+                    }
+                }
+                console.log("\tPage #" + nPage + " done!");
                 cb(null);
             });
         }
 
-        function hasNextPage () {
-            return cToken != '';
-        }
-
         async.doWhilst(
             getAggregatedUsageHelper,
-            hasNextPage,
+            function () {
+                return cToken != '';
+            },
             function (err) {
                 if (err) {
                     console.log("async doWhilst err", err);
-                    return;
                 }
-                cb(null);
+                console.log("\tFinish get usage.");
             }
         );
 

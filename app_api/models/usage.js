@@ -12,7 +12,7 @@ var mongoose = require('mongoose');
 //                "meteredService": "Storage",
 //                "meteredServiceType": "",
 //                "project": "thomasmondemo"}
-// resourceGroups = CLASSIC
+// resourceGroups = classic
 // resourceType = Storage
 // resourceName = thomasmondemo
 
