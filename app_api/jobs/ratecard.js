@@ -49,7 +49,7 @@ module.exports.getRateCardList = function () {
         });
 
     }).on('error', function (err) {
-        console.log("\tFail to get subscriptions", err);
+        console.log("\tFail to get rate cards", err);
     }).on('close', function (){
         console.log("\tfinish updating rate cards on all subscriptions");
     });

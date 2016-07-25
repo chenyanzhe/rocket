@@ -63,8 +63,7 @@ function startSubscriptionJob() {
             console.log('INIT: subscriptionJob started!');
             subscriptionWorker();
         },
-        start: true,
-        runOnInit: true
+        start: true
     });
 }
 
@@ -75,6 +74,18 @@ function startRateCardJob() {
         onTick: function () {
             console.log('INIT: rateCardJob started!');
             rateCardWorker();
+        },
+        start: true
+    });
+}
+
+function startUsageJob() {
+    var usageWorker = require('./usage').getUsage;
+    var usageJob = new CronJob({
+        cronTime: '*/30 * * * * *', // run every 10 seconds
+        onTick: function () {
+            console.log('INIT: usageJob started!');
+            usageWorker();
         },
         start: true,
         runOnInit: true
@@ -108,6 +119,7 @@ function setupSchema(callback) {
     console.log("INIT: setting up schema ...");
     require('../models/subscription');
     require('../models/ratecard');
+    require('../models/usage');
     callback(null);
 }
 
@@ -147,6 +159,7 @@ function startCronJobs(callback) {
     startTokenJob();
     startSubscriptionJob();
     startRateCardJob();
+    startUsageJob();
     callback(null);
 }
 
