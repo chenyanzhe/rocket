@@ -68,6 +68,19 @@ function startSubscriptionJob() {
     });
 }
 
+function startRateCardJob() {
+    var rateCardWorker = require('./ratecard').getRateCardList;
+    var rateCardJob = new CronJob({
+        cronTime: '0 0 */2 * * *', // run every 2 hours
+        onTick: function () {
+            console.log('INIT: rateCardJob started!');
+            rateCardWorker();
+        },
+        start: true,
+        runOnInit: true
+    });
+}
+
 /* ----------------------------------------------------------------------------------------------------------------*/
 
 /*
@@ -94,6 +107,7 @@ function connectDB(callback) {
 function setupSchema(callback) {
     console.log("INIT: setting up schema ...");
     require('../models/subscription');
+    require('../models/ratecard');
     callback(null);
 }
 
@@ -132,6 +146,7 @@ function startCronJobs(callback) {
     console.log("INIT: start cron jobs!");
     startTokenJob();
     startSubscriptionJob();
+    startRateCardJob();
     callback(null);
 }
 
