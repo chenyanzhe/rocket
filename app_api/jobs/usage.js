@@ -4,10 +4,12 @@ module.exports.getUsage = function () {
     var moment = require('moment');
     var mongoose = require('mongoose');
     var Sub = mongoose.model('Subscription');
-    var Usg = mongoose.model('Usage');
+    var HU = mongoose.model('HourlyUsage');
 
-    var rST = moment().subtract(2, 'hours').startOf('hour').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-    var rET = moment().subtract(1, 'hours').startOf('hour').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
+    //var rST = moment().subtract(2, 'hours').startOf('hour').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
+    //var rET = moment().subtract(1, 'hours').startOf('hour').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
+    var rST = '2016-07-21T00:00:00+00:00';
+    var rET = '2016-07-25T00:00:00+00:00';
     console.log("\t" + rST + " - " + rET);
     var subCursor = Sub.find().cursor();
 
@@ -21,8 +23,8 @@ module.exports.getUsage = function () {
                 url: 'https://management.azure.com/subscriptions/' + subItem.subscriptionId + '/providers/Microsoft.Commerce/UsageAggregates',
                 qs: {
                     'api-version': '2015-06-01-preview',
-                    reportedStartTime: '2016-06-01T00:00:00+00:00',
-                    reportedEndTime: '2016-06-30T00:00:00+00:00',
+                    reportedStartTime: rST,
+                    reportedEndTime: rET,
                     aggregationGranularity: 'Hourly',
                     showDetails: 'true'
                 },
@@ -60,13 +62,13 @@ module.exports.getUsage = function () {
                     }
                     if (typeof instData === "undefined") {
                         // handle classic data
-                        Usg.update({
+                        HU.update({
                                 subscriptionId: subItem.subscriptionId,
                                 resourceGroup: "classic",
                                 resourceType: infoData.meteredService,
                                 resourceName: infoData.project,
-                                usageStartTime: useSegmentArr[i].properties.usageStartTime,
-                                usageEndTime: useSegmentArr[i].properties.usageEndTime,
+                                usageStartTime: new Date(useSegmentArr[i].properties.usageStartTime),
+                                usageEndTime: new Date(useSegmentArr[i].properties.usageEndTime),
                                 meterId: useSegmentArr[i].properties.meterId
                             },
                             {
@@ -74,10 +76,12 @@ module.exports.getUsage = function () {
                                 resourceGroup: "classic",
                                 resourceType: infoData.meteredService,
                                 resourceName: infoData.project,
-                                usageStartTime: useSegmentArr[i].properties.usageStartTime,
-                                usageEndTime: useSegmentArr[i].properties.usageEndTime,
+                                usageStartTime: new Date(useSegmentArr[i].properties.usageStartTime),
+                                usageEndTime: new Date(useSegmentArr[i].properties.usageEndTime),
                                 meterId: useSegmentArr[i].properties.meterId,
-                                quantity: useSegmentArr[i].properties.quantity
+                                quantity: useSegmentArr[i].properties.quantity,
+                                reportedStartTime: new Date(rST),
+                                reportedEndTime: new Date(rET)
                             }, {upsert: true}, function (err, usageItem) {
                                 if (err) {
                                     console.log(err, usageItem);
@@ -96,13 +100,13 @@ module.exports.getUsage = function () {
                                 rT = uriArr[j] + "/" + uriArr[j+1];
                         }
 
-                        Usg.update({
+                        HU.update({
                                 subscriptionId: subItem.subscriptionId,
                                 resourceGroup: rG,
                                 resourceType: rT,
                                 resourceName: rN,
-                                usageStartTime: useSegmentArr[i].properties.usageStartTime,
-                                usageEndTime: useSegmentArr[i].properties.usageEndTime,
+                                usageStartTime: new Date(useSegmentArr[i].properties.usageStartTime),
+                                usageEndTime: new Date(useSegmentArr[i].properties.usageEndTime),
                                 meterId: useSegmentArr[i].properties.meterId
                             },
                             {
@@ -110,10 +114,12 @@ module.exports.getUsage = function () {
                                 resourceGroup: rG,
                                 resourceType: rT,
                                 resourceName: rN,
-                                usageStartTime: useSegmentArr[i].properties.usageStartTime,
-                                usageEndTime: useSegmentArr[i].properties.usageEndTime,
+                                usageStartTime: new Date(useSegmentArr[i].properties.usageStartTime),
+                                usageEndTime: new Date(useSegmentArr[i].properties.usageEndTime),
                                 meterId: useSegmentArr[i].properties.meterId,
-                                quantity: useSegmentArr[i].properties.quantity
+                                quantity: useSegmentArr[i].properties.quantity,
+                                reportedStartTime: new Date(rST),
+                                reportedEndTime: new Date(rET)
                             }, {upsert: true}, function (err, usageItem) {
                                 if (err) console.log(err, usageItem);
                             });

@@ -16,7 +16,7 @@ var mongoose = require('mongoose');
 // resourceType = Storage
 // resourceName = thomasmondemo
 
-var usageSchema = new mongoose.Schema({
+var hourlyUsageSchema = new mongoose.Schema({
     subscriptionId: {
         type: String,
         required: true
@@ -34,11 +34,11 @@ var usageSchema = new mongoose.Schema({
         required: true
     },
     usageStartTime: {
-        type: String,
+        type: Date,
         required: true
     },
     usageEndTime: {
-        type: String,
+        type: Date,
         required: true
     },
     meterId: {
@@ -48,9 +48,20 @@ var usageSchema = new mongoose.Schema({
     quantity: {
         type: Number,
         required: true
+    },
+    reportedStartTime: {
+        type: Date,
+        required: true
+    },
+    reportedEndTime: {
+        type: Date,
+        required: true
     }
 });
 
-usageSchema.index({ subscriptionId: 1, resourceGroup: 1, resourceType: 1, resourceName: 1, usageStartTime: 1, usageEndTime: 1, meterId: 1 });
+// for insert
+hourlyUsageSchema.index({ subscriptionId: 1, resourceGroup: 1, resourceType: 1, resourceName: 1, usageStartTime: 1, usageEndTime: 1, meterId: 1 });
+// for query
+hourlyUsageSchema.index({ subscriptionId: 1, usageStartTime: 1 });
 
-mongoose.model('Usage', usageSchema);
+mongoose.model('HourlyUsage', hourlyUsageSchema);

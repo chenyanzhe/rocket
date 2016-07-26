@@ -4,6 +4,9 @@ var mongoose = require('mongoose');
 var gracefulShutdown;
 var dbURI = process.env.DB_URI;
 
+//FIXME: subscription id should be set by user
+global.subscriptionId = 'c4528d9e-c99a-48bb-b12d-fde2176a43b8';
+
 mongoose.connect(dbURI);
 
 // CONNECTION EVENTS
@@ -46,3 +49,6 @@ process.on('SIGTERM', function() {
 
 // BRING IN SCHEMAS & MODELS
 require('./location');
+require('./ratecard');
+require('./subscription');
+require('./usage');
