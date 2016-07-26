@@ -46,7 +46,7 @@ var CronJob = require('cron').CronJob;
 function startTokenJob() {
     var tokenWorker = require('./token').getAccessToken;
     var tokenJob = new CronJob({
-        cronTime: '0 */31 * * * *', // run every 31 minutes
+        cronTime: '0 */30 * * * *', // run every 30 minutes
         onTick: function () {
             console.log('INIT: tokenJob started!');
             var moment = require('moment');
@@ -88,16 +88,18 @@ function startRateCardJob() {
     });
 }
 
-function startUsageJob() {
-    var usageWorker = require('./usage').getUsage;
-    var usageJob = new CronJob({
-        cronTime: '0 0 */5 * * *', // run every 5 hours
+function startHourlyUsageJob() {
+    var hourlyUsageWorker = require('./usage').getHourlyUsage;
+    var hourlyUsageJob = new CronJob({
+        cronTime: '0 30 * * * *', // run on **:30:00
         onTick: function () {
             console.log('INIT: usageJob started!');
-            usageWorker();
+            var moment = require('moment');
+            var rST = moment().format("YYYY-MM-DDThh:mm:ssZ").toString();
+            console.log("\t" + rST);
+            hourlyUsageWorker();
         },
-        start: true,
-        runOnInit: true
+        start: true
     });
 }
 
@@ -168,7 +170,7 @@ function startCronJobs(callback) {
     startTokenJob();
     startSubscriptionJob();
     startRateCardJob();
-    startUsageJob();
+    startHourlyUsageJob();
     callback(null);
 }
 

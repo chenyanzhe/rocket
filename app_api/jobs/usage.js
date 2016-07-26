@@ -1,4 +1,4 @@
-module.exports.getUsage = function () {
+module.exports.getHourlyUsage = function () {
     var request = require("request");
     var async = require('async');
     var moment = require('moment');
@@ -6,10 +6,8 @@ module.exports.getUsage = function () {
     var Sub = mongoose.model('Subscription');
     var HU = mongoose.model('HourlyUsage');
 
-    //var rST = moment().subtract(2, 'hours').startOf('hour').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-    //var rET = moment().subtract(1, 'hours').startOf('hour').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-    var rST = '2016-07-21T00:00:00+00:00';
-    var rET = '2016-07-25T00:00:00+00:00';
+    var rST = moment().subtract(2, 'hours').startOf('hour').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
+    var rET = moment().subtract(1, 'hours').startOf('hour').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
     console.log("\t" + rST + " - " + rET);
     var subCursor = Sub.find().cursor();
 
