@@ -1,10 +1,15 @@
 module.exports.getUsage = function () {
     var request = require("request");
     var async = require('async');
+    var moment = require('moment');
     var mongoose = require('mongoose');
     var Sub = mongoose.model('Subscription');
     var Usg = mongoose.model('Usage');
 
+    var rST = moment().subtract(2, 'hours').startOf('hour').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
+    var rET = moment().subtract(1, 'hours').startOf('hour').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
+    console.log("\t" + rST);
+    console.log("\t" + rET);
     var subCursor = Sub.find().cursor();
 
     subCursor.on('data', function (subItem) {
@@ -17,8 +22,8 @@ module.exports.getUsage = function () {
                 url: 'https://management.azure.com/subscriptions/' + subItem.subscriptionId + '/providers/Microsoft.Commerce/UsageAggregates',
                 qs: {
                     'api-version': '2015-06-01-preview',
-                    reportedStartTime: '2016-07-20T00:00:00+00:00',
-                    reportedEndTime: '2016-07-22T00:00:00+00:00',
+                    reportedStartTime: rST,
+                    reportedEndTime: rET,
                     aggregationGranularity: 'Hourly',
                     showDetails: 'true'
                 },
@@ -115,9 +120,7 @@ module.exports.getUsage = function () {
                             });
                     }
                 }
-                console.log("\tPage #" + nPage + " done!");
-                console.log("\ttotal:", useSegmentArr.length);
-                console.log("\tinvalid:", nInvalidData);
+                console.log("\tPage #" + nPage + " done:", "total:", useSegmentArr.length, "invalid:", nInvalidData);
                 cb(null);
             });
         }

@@ -82,7 +82,7 @@ function startRateCardJob() {
 function startUsageJob() {
     var usageWorker = require('./usage').getUsage;
     var usageJob = new CronJob({
-        cronTime: '0 */59 * * * *', // run every 59 minutes
+        cronTime: '0 0 */1 * * *', // run every 1 hour
         onTick: function () {
             console.log('INIT: usageJob started!');
             usageWorker();
