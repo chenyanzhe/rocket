@@ -39,7 +39,15 @@ module.exports.getUsage = function () {
 
             request(options, function (error, res, body) {
                 if (error) throw new Error(error);
-                var usageSegment = JSON.parse(body);
+                var usageSegment;
+                try {
+                    usageSegment = JSON.parse(body);
+                } catch (e) {
+                    console.log(e);
+                    // retry
+                    cb(null);
+                    return;
+                }
                 if (usageSegment.nextLink) {
                     var idx = usageSegment.nextLink.lastIndexOf("=");
                     cToken = usageSegment.nextLink.substr(idx + 1);
