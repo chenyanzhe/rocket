@@ -10,4 +10,6 @@ var subscriptionSchema = new mongoose.Schema({
     state: String
 });
 
+subscriptionSchema.index({ subscriptionId: 1 });
+
 mongoose.model('Subscription', subscriptionSchema);

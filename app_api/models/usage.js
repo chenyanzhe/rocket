@@ -51,4 +51,6 @@ var usageSchema = new mongoose.Schema({
     }
 });
 
+usageSchema.index({ subscriptionId: 1, resourceGroup: 1, resourceType: 1, resourceName: 1, usageStartTime: 1, usageEndTime: 1, meterId: 1 });
+
 mongoose.model('Usage', usageSchema);

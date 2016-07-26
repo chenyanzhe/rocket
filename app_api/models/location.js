@@ -11,4 +11,6 @@ var locationSchema = new mongoose.Schema({
     latitude: String
 });
 
+locationSchema.index({ id: 1 });
+
 mongoose.model('Location', locationSchema);

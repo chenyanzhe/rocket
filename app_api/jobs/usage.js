@@ -8,8 +8,7 @@ module.exports.getUsage = function () {
 
     var rST = moment().subtract(2, 'hours').startOf('hour').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
     var rET = moment().subtract(1, 'hours').startOf('hour').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-    console.log("\t" + rST);
-    console.log("\t" + rET);
+    console.log("\t" + rST + " - " + rET);
     var subCursor = Sub.find().cursor();
 
     subCursor.on('data', function (subItem) {
@@ -22,8 +21,8 @@ module.exports.getUsage = function () {
                 url: 'https://management.azure.com/subscriptions/' + subItem.subscriptionId + '/providers/Microsoft.Commerce/UsageAggregates',
                 qs: {
                     'api-version': '2015-06-01-preview',
-                    reportedStartTime: rST,
-                    reportedEndTime: rET,
+                    reportedStartTime: '2016-06-01T00:00:00+00:00',
+                    reportedEndTime: '2016-06-30T00:00:00+00:00',
                     aggregationGranularity: 'Hourly',
                     showDetails: 'true'
                 },

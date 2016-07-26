@@ -19,4 +19,6 @@ var rateCardSchema = new mongoose.Schema({
     IncludedQuantity: Number
 });
 
+rateCardSchema.index({ subscriptionId: 1, MeterId: 1 });
+
 mongoose.model('RateCard', rateCardSchema);

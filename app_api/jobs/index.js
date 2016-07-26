@@ -49,6 +49,9 @@ function startTokenJob() {
         cronTime: '0 */31 * * * *', // run every 31 minutes
         onTick: function () {
             console.log('INIT: tokenJob started!');
+            var moment = require('moment');
+            var rST = moment().format("YYYY-MM-DDThh:mm:ssZ").toString();
+            console.log("\t" + rST);
             tokenWorker();
         },
         start: true
@@ -58,9 +61,12 @@ function startTokenJob() {
 function startSubscriptionJob() {
     var subscriptionWorker = require('./subscription').getSubscriptionList;
     var subscriptionJob = new CronJob({
-        cronTime: '0 0 */59 * * *', // run every 59 minutes
+        cronTime: '0 0 0 */1 * *', // run every day
         onTick: function () {
             console.log('INIT: subscriptionJob started!');
+            var moment = require('moment');
+            var rST = moment().format("YYYY-MM-DDThh:mm:ssZ").toString();
+            console.log("\t" + rST);
             subscriptionWorker();
         },
         start: true
@@ -70,9 +76,12 @@ function startSubscriptionJob() {
 function startRateCardJob() {
     var rateCardWorker = require('./ratecard').getRateCardList;
     var rateCardJob = new CronJob({
-        cronTime: '0 0 */2 * * *', // run every 2 hours
+        cronTime: '0 0 0 */1 * *', // run every day
         onTick: function () {
             console.log('INIT: rateCardJob started!');
+            var moment = require('moment');
+            var rST = moment().format("YYYY-MM-DDThh:mm:ssZ").toString();
+            console.log("\t" + rST);
             rateCardWorker();
         },
         start: true
@@ -82,7 +91,7 @@ function startRateCardJob() {
 function startUsageJob() {
     var usageWorker = require('./usage').getUsage;
     var usageJob = new CronJob({
-        cronTime: '0 0 */1 * * *', // run every 1 hour
+        cronTime: '0 0 */5 * * *', // run every 5 hours
         onTick: function () {
             console.log('INIT: usageJob started!');
             usageWorker();
