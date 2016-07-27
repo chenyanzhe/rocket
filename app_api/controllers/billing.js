@@ -1,8 +1,7 @@
 var mongoose = require('mongoose');
 var moment = require('moment');
 
-var RC = mongoose.model('RateCard');
-var HU = mongoose.model('HourlyUsage');
+var DC = mongoose.model('DailyCost');
 
 var sendJSONResponse = function(res, status, content) {
 	res.status(status);
@@ -16,18 +15,32 @@ module.exports.lastWeek = function(request, response) {
     var rST = moment().startOf('week').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
     var rET = moment().startOf('day').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
     console.log("\t" + rST + " - " + rET);
-    var usageCursor = HU.aggregate(
-        { $match: { usageStartTime: { $gte: rST}}}
-    ).cursor({ batchSize: 1000 }).exec();
-    usageCursor.each(function (error, doc) {
-        console.log(doc);
+    var costCursor = DC.aggregate([
+        { $match:
+            {
+                subscriptionId: global.subscriptionId,
+                usageStartTime: { $gte: new Date(rST), $lt: new Date(rET) }
+            }
+        },
+        { $group: {
+            _id: { resourceGroup: "$resourceGroup", resourceType: "$resourceType", resourceName: "$resourceName" },
+            totalCost: { $sum: "$cost" }
+        }
+        },
+        { $project:
+        { _id: 0, resourceGroup: "$_id.resourceGroup", resourceName: "$_id.resourceName", resourceType: "$_id.resourceType", totalCost: 1 }
+        },
+        { $sort: { totalCost: -1 } }
+    ]).cursor({ batchSize: 1000 }).exec();
+
+    costCursor.each(function(error, doc) {
+        if (error) {
+            console.log(error);
+            sendJSONResponse(response, 404, error);
+        } else if (doc) {
+            billingInfo.push(doc);
+        } else {
+            sendJSONResponse(response, 200, billingInfo);
+        }
     });
-
-    sendJSONResponse(response, 200, "OK");
 };
-
-/*
-db.usages.find({
-    usageStartTime : { "$gte" : ISODate("2016-07-25T00:00:00Z"), "$lt" : ISODate("2016-07-25T01:00:00Z") }
-});
-*/

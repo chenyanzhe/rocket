@@ -91,16 +91,50 @@ function startRateCardJob() {
 function startHourlyUsageJob() {
     var hourlyUsageWorker = require('./usage').getHourlyUsage;
     var hourlyUsageJob = new CronJob({
-        cronTime: '0 30 * * * *', // run on **:30:00
+        // cronTime: '0 30 * * * *', // run on **:30:00
+        cronTime: '0 0 0 */1 * *', // run every day
         onTick: function () {
-            console.log('INIT: usageJob started!');
+            console.log('INIT: hourlyUsageJob started!');
             var moment = require('moment');
             var rST = moment().format("YYYY-MM-DDThh:mm:ssZ").toString();
             console.log("\t" + rST);
             hourlyUsageWorker();
         },
+        // runOnInit: true,
         start: true
     });
+}
+
+function startDailyUsageJob() {
+    var dailyUsageWorker = require('./usage').getDailyUsage;
+    var dailyUsageJob = new CronJob({
+        cronTime: '0 0 23 * * *', // run on 23:00:00
+        onTick: function() {
+            console.log('INIT: dailyUsageJob started!');
+            var moment = require('moment');
+            var rST = moment().format("YYYY-MM-DDThh:mm:ssZ").toString();
+            console.log("\t" + rST);
+            dailyUsageWorker();
+        },
+        // runOnInit: true,
+        start: true
+    })
+}
+
+function startDailyCostJob() {
+    var dailyCostWorker = require('./cost').getDailyCost;
+    var dailyCostJob = new CronJob({
+        cronTime: '0 0 23 * * *', // run on 23:00:00
+        onTick: function() {
+            console.log('INIT: dailyCostJob started!');
+            var moment = require('moment');
+            var rST = moment().format("YYYY-MM-DDThh:mm:ssZ").toString();
+            console.log("\t" + rST);
+            dailyCostWorker();
+        },
+        runOnInit: true,
+        start: true
+    })
 }
 
 /* ----------------------------------------------------------------------------------------------------------------*/
@@ -131,6 +165,7 @@ function setupSchema(callback) {
     require('../models/subscription');
     require('../models/ratecard');
     require('../models/usage');
+    require('../models/cost');
     callback(null);
 }
 
@@ -171,6 +206,8 @@ function startCronJobs(callback) {
     startSubscriptionJob();
     startRateCardJob();
     startHourlyUsageJob();
+    startDailyUsageJob();
+    startDailyCostJob();
     callback(null);
 }
 

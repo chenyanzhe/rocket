@@ -52,3 +52,4 @@ require('./location');
 require('./ratecard');
 require('./subscription');
 require('./usage');
+require('./cost');

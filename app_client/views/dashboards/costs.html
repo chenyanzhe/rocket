@@ -3,7 +3,7 @@
     <div class="col-lg-12">
         <div class="ibox float-e-margins">
             <div class="ibox-title">
-                <h5>Costs by resource</h5>
+                <h5>Last Week Costs</h5>
             </div>
             <div class="ibox-content">
                 <input type="text" class="form-control input-sm m-b-xs" id="filter"
@@ -20,10 +20,10 @@
                     </thead>
                     <tbody>
                     <tr ng-repeat="billingItem in billingInfo">
-                        <td>{{ billingItem.name }}</td>
-                        <td>{{ billingItem.rgName }}</td>
-                        <td>{{ billingItem.type }}</td>
-                        <td>{{ billingItem.cost }}</td>
+                        <td>{{ billingItem.resourceName }}</td>
+                        <td>{{ billingItem.resourceGroup }}</td>
+                        <td>{{ billingItem.resourceType }}</td>
+                        <td>{{ billingItem.totalCost | number: 2 }}</td>
                     </tr>
                     </tbody>
                     <tfoot>
