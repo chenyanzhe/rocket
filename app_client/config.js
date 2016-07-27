@@ -45,11 +45,22 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
                 loadPlugin: function ($ocLazyLoad) {
                     return $ocLazyLoad.load([
                         {
+                            files: ['lib/js/plugins/moment/moment.min.js']
+                        },
+                        {
                             files: ['lib/js/plugins/footable/footable.all.min.js', 'lib/css/plugins/footable/footable.core.css']
                         },
                         {
                             name: 'ui.footable',
                             files: ['lib/js/plugins/footable/angular-footable.js']
+                        },
+                        {
+                            serie: true,
+                            files: ['lib/js/plugins/daterangepicker/daterangepicker.js', 'lib/css/plugins/daterangepicker/daterangepicker-bs3.css']
+                        },
+                        {
+                            name: 'daterangepicker',
+                            files: ['lib/js/plugins/daterangepicker/angular-daterangepicker.js']
                         }
                     ]);
                 }

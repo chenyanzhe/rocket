@@ -168,8 +168,8 @@ module.exports.getDailyUsage = function () {
 
     var rST = moment().subtract(2, 'hours').startOf('hour').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
     var rET = moment().subtract(1, 'hours').startOf('hour').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-    rST = '2016-07-01T00:00:00+00:00';
-    rET = '2016-07-27T00:00:00+00:00';
+    rST = '2016-01-01T00:00:00+00:00';
+    rET = '2016-06-01T00:00:00+00:00';
     console.log("\t" + rST + " - " + rET);
     var subCursor = Sub.find().cursor();
 

@@ -11,8 +11,8 @@ module.exports.getDailyCost = function () {
 
     subCursor.on('data', function (subItem) {
 
-        var startDay = moment('2016-07-01T00:00:00+00:00');
-        var endDay = moment('2016-07-27T00:00:00+00:00');
+        var startDay = moment('2016-04-01T00:00:00+00:00');
+        var endDay = moment('2016-06-02T00:00:00+00:00');
         var nDays = 0;
         var errorHappens = false;
 
