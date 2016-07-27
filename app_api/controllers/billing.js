@@ -12,8 +12,8 @@ var printed = false;
 // prepare: name, rgName, type, cost
 module.exports.lastWeek = function(request, response) {
     var billingInfo = [];
-    var rST = moment().startOf('week').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-    var rET = moment().startOf('day').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
+    var rST = request.params.start;
+    var rET = request.params.end;
     console.log("\t" + rST + " - " + rET);
     var costCursor = DC.aggregate([
         { $match:

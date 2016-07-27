@@ -12,7 +12,7 @@ router.get('/vhd_upload/:localpath', ctrlVM.vhdUpload);
 router.get('/img_list', ctrlVM.imgList);
 router.get('/ava_locs', ctrlVM.avaLocs);
 
-router.get('/billing', ctrlBilling.lastWeek);
+router.get('/billing/:start/:end', ctrlBilling.lastWeek);
 
 router.get('/location', ctrlLocation.locationList);
 
