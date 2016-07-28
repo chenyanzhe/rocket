@@ -13,7 +13,6 @@ var nameMapping = [
     { prefix: 'andliu', alias: 'andliu' },
     { prefix: 'decui', alias: 'decui' },
     { prefix: 'thomas', alias: 'huishao' },
-    { prefix: 'ts', alias: 'huishao' },
     { prefix: 'scott', alias: 'mingzhan' },
     { prefix: 'wei', alias: 'v-lii' },
     { prefix: 'xhx', alias: 'v-hoxian' },
@@ -32,7 +31,9 @@ var nameMapping = [
     { prefix: 'doliu', alias: 'doliu' },
     { prefix: 'joey', alias: 'v-shuihe' },
     { prefix: 'honzhan', alias: 'honzhan' },
-    { prefix: 'shostc', alias: 'shostc' }
+    { prefix: 'shostc', alias: 'shostc' },
+    { prefix: 'jish', alias: 't-jish'},
+    { prefix: 'yachen', alisa: 't-yachen'}
 ];
 
 // name, cost
