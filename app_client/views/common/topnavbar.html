@@ -3,5 +3,65 @@
         <div class="navbar-header">
             <span minimaliza-sidebar></span>
         </div>
+        <ul class="nav navbar-top-links navbar-right">
+            <li uib-dropdown>
+                <a class="count-info" href uib-dropdown-toggle>
+                    Subscriptions
+                </a>
+                <ul uib-dropdown-menu class="animated fadeInRight m-t-xs" ng-controller="subscriptionCtrl">
+                    <li><a ng-click="changeLanguage('en')">OSTC Shanghai Dev</a></li>
+                    <li><a ng-click="changeLanguage('es')">OSTC Shanghai Test</a></li>
+                </ul>
+            </li>
+            <li uib-dropdown>
+                <a class="count-info" href uib-dropdown-toggle>
+                    <i class="fa fa-envelope"></i> <span class="label label-warning">16</span>
+                </a>
+                <ul class="dropdown-messages" uib-dropdown-menu>
+                    <li>
+                        <div class="dropdown-messages-box">
+                            <div>
+                                <small class="pull-right">46h ago</small>
+                                <strong>Mike Loreipsum</strong> started following <strong>Monica Smith</strong>. <br>
+                                <small class="text-muted">3 days ago at 7:58 pm - 10.06.2014</small>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <div class="dropdown-messages-box">
+                            <div>
+                                <small class="pull-right text-navy">5h ago</small>
+                                <strong>Chris Johnatan Overtunk</strong> started following <strong>Monica Smith</strong>. <br>
+                                <small class="text-muted">Yesterday 1:21 pm - 11.06.2014</small>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <div class="dropdown-messages-box">
+                            <div>
+                                <small class="pull-right">23h ago</small>
+                                <strong>Monica Smith</strong> love <strong>Kim Smith</strong>. <br>
+                                <small class="text-muted">2 days ago at 2:30 am - 11.06.2014</small>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <div class="text-center link-block">
+                            <a>
+                                <i class="fa fa-envelope"></i> <strong>Read All Messages</strong>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a>
+                    <i class="fa fa-sign-out"></i> Log out
+                </a>
+            </li>
+        </ul>
     </nav>
 </div>

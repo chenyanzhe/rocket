@@ -82,7 +82,14 @@ function wizardCtrl($scope, $rootScope) {
 
 }
 
+function subscriptionCtrl($scope) {
+    $scope.changeLanguage = function (langKey) {
+        console.log(langKey);
+    };
+}
+
 angular
     .module('inspinia')
     .controller('MainCtrl', MainCtrl)
     .controller('wizardCtrl', wizardCtrl)
+    .controller('subscriptionCtrl', subscriptionCtrl);
