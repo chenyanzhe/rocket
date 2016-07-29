@@ -89,12 +89,15 @@ function vmLocDistDrawerCtrl($scope) {
 	})
 };
 
-function chunk(arr, size) {
-	var newArr = [];
-	for (var i = 0; i < arr.length; i += size) {
-		newArr.push(arr.slice(i, i + size));
-	}
-	return newArr;
+function chunk(data) {
+    var newData = [[], [], []];
+    var colId = 0;
+    for (var loc in data) {
+        newData[colId].push({name: loc, status: data[loc]});
+        colId++;
+        colId = colId % 3;
+    }
+    return newData;
 }
 
 function vmUsageCtrl($scope, vmUsageService) {
@@ -102,17 +105,12 @@ function vmUsageCtrl($scope, vmUsageService) {
 		var locsH = {};
 		$scope.vmData.forEach(function(vmObj) { locsH[vmObj.location] = 0 });
 		var locs = Object.keys(locsH);
-		var locsParam = locs.join("&")
-		console.log(locsParam);
+		var locsAssem = locs.join("&");
 
-		vmUsageService.getVMUsage(locsParam)
+		vmUsageService.getVMUsage(locsAssem)
 			.success(function (data) {
-				console.log("vmUsageData prepared");
-
-				$scope.vmUsage = chunk(data, Math.ceil(data.length / 3));
-				console.log("vmUsageData chunked");
-
-				$scope.loadingUsage = false;
+                $scope.vmUsage = chunk(data);
+                $scope.loadingUsage = false;
 			})
 			.error(function (err) {
 				console.log(err);

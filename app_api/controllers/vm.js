@@ -1,6 +1,6 @@
 var sendJSONresponse = function(res, status, content) {
-  res.status(status);
-  res.json(content);
+    res.status(status);
+    res.json(content);
 };
 
 module.exports.vmList = function(req, res) {
@@ -49,40 +49,33 @@ module.exports.vmList = function(req, res) {
 };
 
 module.exports.vmUsage = function(req, res) {
-  var params = [{name: "locations", value: req.params.location}];
-  var shell = require('node-powershell').Shell;
-  shell.executionStringBuilder("./scripts/get_vm_usage.ps1", params)
-    .then(function(str) {
-        var ps = new shell(str);
-        console.log("get_vm_usage started");
-        console.log(Date.now());
-        return ps.execute();
-    })
-    .then(function(data) {
-      if (data.code === 0) {
-        var feedback = JSON.parse(data.output);
-        if (feedback.code == false) {
-          console.log("get_vm_usage execute fail");
-          console.log(Date.now());
-          sendJSONresponse(res, 404, feedback.output);
-        } else {
-          console.log("get_vm_usage execute success");
-          console.log(Date.now());
-          sendJSONresponse(res, 200, feedback.output);
+    var locs = req.params.location.split('&');
+    var request = require("request");
+    var async = require('async');
+    var retObj = {};
+    async.each(locs, function (loc, callback) {
+        var options = {
+            method: 'GET',
+            url: 'https://management.azure.com/subscriptions/' + global.subscriptionId + '/providers/Microsoft.Compute/locations/' + loc + '/usages',
+            qs: { 'api-version': '2015-06-15' },
+            headers: {
+                'cache-control': 'no-cache',
+                authorization: global.access_token
+            }
+        };
+        request(options, function (error, response, body) {
+            if (error) callback(error);
+            else {
+                retObj[loc] = JSON.parse(body).value;
+                callback();
+            }
+        });
+    }, function (err) {
+        if (err) sendJSONresponse(res, 404, err);
+        else {
+            sendJSONresponse(res, 200, retObj);
         }
-      } else {
-        console.log("node subprocess abort");
-        sendJSONresponse(res, 404, "node subprocess abort");
-      }
-    })
-    .catch(function(err) {
-      console.log(err);
-      sendJSONresponse(res, 404, err);
     });
-
-  // setTimeout(function(){
-  //   sendJSONresponse(res, 200, staticData);
-  // }, 2000);
 };
 
 function getFilesWithExtension(srcPath, extName) {

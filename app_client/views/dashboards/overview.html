@@ -58,13 +58,13 @@
                 <h3>{{ vmUsageItem.name | locationNameFormat }}</h3>
             </div>
             <div class="ibox-content">
-                <div ng-repeat="vmUsageMetric in vmUsageItem.usage">
+                <div ng-repeat="vmUsageMetric in vmUsageItem.status">
                     <div>
-                        <span>{{ vmUsageMetric.Name.LocalizedValue }}</span>
-                        <small class="pull-right">{{ vmUsageMetric.CurrentValue }} / {{ vmUsageMetric.Limit }}</small>
+                        <span>{{ vmUsageMetric.name.localizedValue }}</span>
+                        <small class="pull-right">{{ vmUsageMetric.currentValue }} / {{ vmUsageMetric.limit }}</small>
                     </div>
                     <div class="progress progress-small">
-                        <div style="width: {{ vmUsageMetric.CurrentValue * 100 / vmUsageMetric.Limit }}%;" class="progress-bar"></div>
+                        <div style="width: {{ vmUsageMetric.currentValue * 100 / vmUsageMetric.limit }}%;" class="progress-bar"></div>
                     </div>
                 </div>
             </div>
