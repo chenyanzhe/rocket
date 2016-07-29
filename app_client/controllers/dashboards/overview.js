@@ -56,30 +56,11 @@ function vmTotalAmountCtrl($scope) {
 function vmLocDistDrawerCtrl($scope) {
 	$scope.$on("vmDataPrepared", function (event, args) {
 		var counts = {};
-		$scope.vmData.forEach(function(vmObj) { counts[vmObj.Location] = (counts[vmObj.Location] || 0) + 1; });
+		$scope.vmData.forEach(function(vmObj) { counts[vmObj.location] = (counts[vmObj.location] || 0) + 1; });
 		var pieData = [];
 		for (var key in counts) {
 			pieData.push({label: locationNameFormatUtil(key), data: counts[key]});
 		}
-
-		var pieDataStatic = [
-	        {
-	            label: "Sales 1",
-	            data: 21
-	        },
-	        {
-	            label: "Sales 2",
-	            data: 3
-	        },
-	        {
-	            label: "Sales 3",
-	            data: 15
-	        },
-	        {
-	            label: "Sales 4",
-	            data: 52
-	        }
-	    ];
 
 	    var pieOptions = {
 	        series: {
@@ -119,7 +100,7 @@ function chunk(arr, size) {
 function vmUsageCtrl($scope, vmUsageService) {
 	$scope.$on("vmDataPrepared", function (event, args) {
 		var locsH = {};
-		$scope.vmData.forEach(function(vmObj) { locsH[vmObj.Location] = 0 });
+		$scope.vmData.forEach(function(vmObj) { locsH[vmObj.location] = 0 });
 		var locs = Object.keys(locsH);
 		var locsParam = locs.join("&")
 		console.log(locsParam);

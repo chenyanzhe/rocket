@@ -4,40 +4,48 @@ var sendJSONresponse = function(res, status, content) {
 };
 
 module.exports.vmList = function(req, res) {
-  var params = [];
-  var shell = require('node-powershell').Shell;
-  shell.executionStringBuilder("./scripts/get_vm_info.ps1", params)
-    .then(function(str) {
-        var ps = new shell(str);
-        console.log("get_vm_info started");
-        console.log(Date.now());
-        return ps.execute();
-    })
-    .then(function(data) {
-      if (data.code === 0) {
-        var feedback = JSON.parse(data.output);
-        if (feedback.code == false) {
-          console.log("get_vm_info execute fail");
-          console.log(Date.now());
-          sendJSONresponse(res, 404, feedback.output);
-        } else {
-          console.log("get_vm_info execute success");
-          console.log(Date.now());
-          sendJSONresponse(res, 200, feedback.output);
-        }
-      } else {
-        console.log("node subprocess abort");
-        sendJSONresponse(res, 404, "node subprocess abort");
-      }
-    })
-    .catch(function(err) {
-      console.log(err);
-      sendJSONresponse(res, 404, err);
-    });
+    var async = require('async');
+    var request = require("request");
+    var vms = [];
 
-  // setTimeout(function(){
-  //   sendJSONresponse(res, 200, staticData);
-  // }, 2000);
+    var options = {
+        method: 'GET',
+        url: 'https://management.azure.com/subscriptions/' + global.subscriptionId + '/resources',
+        qs:
+        {
+            'api-version': '2015-01-01',
+            '$filter': ''
+        },
+        headers:
+        {
+            'cache-control': 'no-cache',
+            authorization: global.access_token
+        }
+    };
+
+    async.series([
+        function (callback) {
+            options.qs['$filter'] = 'resourceType eq \'Microsoft.Compute/virtualMachines\'';
+            request(options, function (error, response, body) {
+                if (error) throw new Error(error);
+                callback(null, JSON.parse(body).value);
+            })
+        },
+        function (callback) {
+            options.qs['$filter'] = 'resourceType eq \'Microsoft.ClassicCompute/virtualMachines\'';
+            request(options, function (error, response, body) {
+                if (error) throw new Error(error);
+                callback(null, JSON.parse(body).value);
+            })
+        }
+    ], function (err, result) {
+        if (err) {
+            sendJSONresponse(res, 404, err);
+        } else {
+            vms = result[0].concat(result[1]);
+            sendJSONresponse(res, 200, vms);
+        }
+    });
 };
 
 module.exports.vmUsage = function(req, res) {
