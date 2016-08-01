@@ -88,8 +88,111 @@ function subscriptionCtrl($scope) {
     };
 }
 
+/**
+ * dashboardMap - data for Map plugin
+ * used in Dashboard 2 view
+ */
+
+function dashboardMap() {
+    var data = [
+        887.70,
+        755.16,
+        310.69,
+        405.17,
+        248.31,
+        207.35,
+        217.22,
+        280.71,
+        210.32,
+        325.42,
+        887.70,
+        755.16,
+        310.69,
+        405.17,
+        248.31,
+        207.35,
+        217.22,
+        280.71,
+        210.32
+    ];
+
+    this.data = data;
+}
+
+function chartJsCtrl() {
+    this.lineDataDashboard4 = {
+        labels: ["January", "February", "March", "April", "May", "June", "July"],
+        datasets: [
+            {
+                label: "Example dataset",
+                fillColor: "rgba(220,220,220,0.5)",
+                strokeColor: "rgba(220,220,220,1)",
+                pointColor: "rgba(220,220,220,1)",
+                pointStrokeColor: "#fff",
+                pointHighlightFill: "#fff",
+                pointHighlightStroke: "rgba(220,220,220,1)",
+                data: [65, 59, 40, 51, 36, 25, 40]
+            },
+            {
+                label: "Example dataset",
+                fillColor: "rgba(26,179,148,0.5)",
+                strokeColor: "rgba(26,179,148,0.7)",
+                pointColor: "rgba(26,179,148,1)",
+                pointStrokeColor: "#fff",
+                pointHighlightFill: "#fff",
+                pointHighlightStroke: "rgba(26,179,148,1)",
+                data: [48, 48, 60, 39, 56, 37, 30]
+            }
+        ]
+    };
+
+    /**
+     * Options for Line chart
+     */
+    this.lineOptions = {
+        scaleShowGridLines : true,
+        scaleGridLineColor : "rgba(0,0,0,.05)",
+        scaleGridLineWidth : 1,
+        bezierCurve : true,
+        bezierCurveTension : 0.4,
+        pointDot : true,
+        pointDotRadius : 4,
+        pointDotStrokeWidth : 1,
+        pointHitDetectionRadius : 20,
+        datasetStroke : true,
+        datasetStrokeWidth : 2,
+        datasetFill : true
+    };
+
+    /**
+     * Data for Doughnut chart
+     */
+    this.doughnutData = [
+        {
+            value: 300,
+            color:"#a3e1d4",
+            highlight: "#1ab394",
+            label: "App"
+        },
+        {
+            value: 50,
+            color: "#dedede",
+            highlight: "#1ab394",
+            label: "Software"
+        },
+        {
+            value: 100,
+            color: "#A4CEE8",
+            highlight: "#1ab394",
+            label: "Laptop"
+        }
+    ];
+}
+
 angular
     .module('inspinia')
     .controller('MainCtrl', MainCtrl)
     .controller('wizardCtrl', wizardCtrl)
-    .controller('subscriptionCtrl', subscriptionCtrl);
+    .controller('subscriptionCtrl', subscriptionCtrl)
+    .controller('dashboardMap', dashboardMap)
+    .controller('chartJsCtrl', chartJsCtrl);

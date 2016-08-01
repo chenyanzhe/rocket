@@ -1,38 +1,126 @@
 <div class="wrapper wrapper-content animated fadeInRight" ng-controller="vmDataCtrl">
 <div class="row">
-    <div class="col-lg-12">
+    <div class="col-lg-8">
+
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <span class="label label-success pull-right">Monthly</span>
+                        <h5>Cost</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <h1 class="no-margins">$ 386,200</h1>
+                        <div class="stat-percent font-bold text-success">98% <i class="fa fa-bolt"></i></div>
+                        <small>OSTC SHANGHAI DEV</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <span class="label label-primary pull-right">Today</span>
+                        <h5>Resources</h5>
+                    </div>
+                    <div class="ibox-content">
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h1 class="no-margins">114</h1>
+                                <small>Virtual Machines</small>
+                            </div>
+                            <div class="col-md-4">
+                                <h1 class="no-margins">46</h1>
+                                <small>Storage Accounts</small>
+                            </div>
+                            <div class="col-md-4">
+                                <h1 class="no-margins">3</h1>
+                                <small>SQL Databases</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                <div>
+                    <span class="pull-right text-right">
+                    <small>Average value of sales in the past month in: <strong>United states</strong></small>
+                        <br/>
+                        All sales: 162,862
+                    </span>
+                    <h3 class="font-bold no-margins">
+                        Half-year billing margin
+                    </h3>
+                    <small>Sales marketing.</small>
+                </div>
+
+                <div class="m-t-sm">
+                    <div class="row">
+                        <div class="col-md-8" ng-controller="chartJsCtrl as chart">
+                            <div>
+                                <canvas linechart options="chart.lineOptions" data="chart.lineDataDashboard4" height="114" responsive=true ></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <ul class="stat-list m-t-lg">
+                                <li>
+                                    <h2 class="no-margins">2,346</h2>
+                                    <small>Total orders in period</small>
+                                    <div class="progress progress-mini">
+                                        <div class="progress-bar" style="width: 48%;"></div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <h2 class="no-margins ">4,422</h2>
+                                    <small>Orders in last month</small>
+                                    <div class="progress progress-mini">
+                                        <div class="progress-bar" style="width: 60%;"></div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="m-t-md">
+                    <small class="pull-right">
+                        <i class="fa fa-clock-o"> </i>
+                        Update on 16.07.2015
+                    </small>
+                    <small>
+                        <strong>Analysis of sales:</strong> The value has been changed over time, and last month reached a level over $50,000.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-lg-4">
         <div class="ibox float-e-margins">
             <div class="ibox-title">
-                <h3>Virual Machine Distribution</h3>
+                <h5>Worldwide Distribution</h5>
             </div>
             <div class="ibox-content">
-                <div class="row">
-                    <div class="col-lg-9" ng-controller="vmLocDistDrawerCtrl">
-                        <div class="sk-spinner sk-spinner-wave" ng-show="loadingChart">
-                            <div class="sk-rect1"></div>
-                            <div class="sk-rect2"></div>
-                            <div class="sk-rect3"></div>
-                            <div class="sk-rect4"></div>
-                            <div class="sk-rect5"></div>
-                        </div>
-                        <div class="flot-chart">
-                            <div flot class="flot-chart-content" ng-show="!loadingChart" dataset="flotPieData" options="flotPieOptions"></div>
-                        </div>
+                <div ng-controller="dashboardMap as map">
+                    <div vector-map style="height: 180px;" my-map-data="map.data"></div>
+                </div>
+                <div class="hr-line-dashed"></div>
+                <div ng-controller="vmLocDistDrawerCtrl">
+                    <div class="sk-spinner sk-spinner-wave" ng-show="loadingChart">
+                        <div class="sk-rect1"></div>
+                        <div class="sk-rect2"></div>
+                        <div class="sk-rect3"></div>
+                        <div class="sk-rect4"></div>
+                        <div class="sk-rect5"></div>
                     </div>
-                    <div class="col-lg-3">
-                        <ul class="stat-list">
-                            <li ng-controller="vmTotalAmountCtrl">
-                                <div class="no-margins sk-spinner sk-spinner-wave" ng-show="loadingAmount">
-                                    <div class="sk-rect1"></div>
-                                    <div class="sk-rect2"></div>
-                                    <div class="sk-rect3"></div>
-                                    <div class="sk-rect4"></div>
-                                    <div class="sk-rect5"></div>
-                                </div>
-                                <h2 class="no-margins" ng-show="!loadingAmount">{{ totalAmount }}</h2>
-                                <small>Total Amount</small>
-                            </li>
-                        </ul>
+                    <div class="flot-chart">
+                        <div flot class="flot-chart-content" ng-show="!loadingChart" dataset="flotPieData" options="flotPieOptions"></div>
                     </div>
                 </div>
             </div>
@@ -40,35 +128,76 @@
     </div>
 </div>
 
-<div class="row" ng-controller="vmUsageCtrl">
-    <div class="col-lg-12" >
-        <div class="sk-spinner sk-spinner-wave" ng-show="loadingUsage">
-            <div class="sk-rect1"></div>
-            <div class="sk-rect2"></div>
-            <div class="sk-rect3"></div>
-            <div class="sk-rect4"></div>
-            <div class="sk-rect5"></div>
-        </div>
-    </div>
+<!--<div class="row">-->
+    <!--<div class="col-lg-12">-->
+        <!--<div class="ibox float-e-margins">-->
+            <!--<div class="ibox-title">-->
+                <!--<h3>Virual Machine Distribution</h3>-->
+            <!--</div>-->
+            <!--<div class="ibox-content">-->
+                <!--<div class="row">-->
+                    <!--<div class="col-lg-9" ng-controller="vmLocDistDrawerCtrl">-->
+                        <!--<div class="sk-spinner sk-spinner-wave" ng-show="loadingChart">-->
+                            <!--<div class="sk-rect1"></div>-->
+                            <!--<div class="sk-rect2"></div>-->
+                            <!--<div class="sk-rect3"></div>-->
+                            <!--<div class="sk-rect4"></div>-->
+                            <!--<div class="sk-rect5"></div>-->
+                        <!--</div>-->
+                        <!--<div class="flot-chart">-->
+                            <!--<div flot class="flot-chart-content" ng-show="!loadingChart" dataset="flotPieData" options="flotPieOptions"></div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="col-lg-3">-->
+                        <!--<ul class="stat-list">-->
+                            <!--<li ng-controller="vmTotalAmountCtrl">-->
+                                <!--<div class="no-margins sk-spinner sk-spinner-wave" ng-show="loadingAmount">-->
+                                    <!--<div class="sk-rect1"></div>-->
+                                    <!--<div class="sk-rect2"></div>-->
+                                    <!--<div class="sk-rect3"></div>-->
+                                    <!--<div class="sk-rect4"></div>-->
+                                    <!--<div class="sk-rect5"></div>-->
+                                <!--</div>-->
+                                <!--<h2 class="no-margins" ng-show="!loadingAmount">{{ totalAmount }}</h2>-->
+                                <!--<small>Total Amount</small>-->
+                            <!--</li>-->
+                        <!--</ul>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</div>-->
 
-    <div class="col-lg-4" ng-show="!loadingUsage" ng-repeat="vmUsageCol in vmUsage">
-        <div class="ibox" ng-repeat="vmUsageItem in vmUsageCol">
-            <div class="ibox-title">
-                <a href="#" class="btn btn-xs btn-outline btn-primary pull-right">DETAILS <i class="fa fa-long-arrow-right"></i> </a>
-                <h3>{{ vmUsageItem.name | locationNameFormat }}</h3>
-            </div>
-            <div class="ibox-content">
-                <div ng-repeat="vmUsageMetric in vmUsageItem.status">
-                    <div>
-                        <span>{{ vmUsageMetric.name.localizedValue }}</span>
-                        <small class="pull-right">{{ vmUsageMetric.currentValue }} / {{ vmUsageMetric.limit }}</small>
-                    </div>
-                    <div class="progress progress-small">
-                        <div style="width: {{ vmUsageMetric.currentValue * 100 / vmUsageMetric.limit }}%;" class="progress-bar"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<!--<div class="row" ng-controller="vmUsageCtrl">-->
+    <!--<div class="col-lg-12" >-->
+        <!--<div class="sk-spinner sk-spinner-wave" ng-show="loadingUsage">-->
+            <!--<div class="sk-rect1"></div>-->
+            <!--<div class="sk-rect2"></div>-->
+            <!--<div class="sk-rect3"></div>-->
+            <!--<div class="sk-rect4"></div>-->
+            <!--<div class="sk-rect5"></div>-->
+        <!--</div>-->
+    <!--</div>-->
+
+    <!--<div class="col-lg-4" ng-show="!loadingUsage" ng-repeat="vmUsageCol in vmUsage">-->
+        <!--<div class="ibox" ng-repeat="vmUsageItem in vmUsageCol">-->
+            <!--<div class="ibox-title">-->
+                <!--<a href="#" class="btn btn-xs btn-outline btn-primary pull-right">DETAILS <i class="fa fa-long-arrow-right"></i> </a>-->
+                <!--<h3>{{ vmUsageItem.name | locationNameFormat }}</h3>-->
+            <!--</div>-->
+            <!--<div class="ibox-content">-->
+                <!--<div ng-repeat="vmUsageMetric in vmUsageItem.status">-->
+                    <!--<div>-->
+                        <!--<span>{{ vmUsageMetric.name.localizedValue }}</span>-->
+                        <!--<small class="pull-right">{{ vmUsageMetric.currentValue }} / {{ vmUsageMetric.limit }}</small>-->
+                    <!--</div>-->
+                    <!--<div class="progress progress-small">-->
+                        <!--<div style="width: {{ vmUsageMetric.currentValue * 100 / vmUsageMetric.limit }}%;" class="progress-bar"></div>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</div>-->
 </div>

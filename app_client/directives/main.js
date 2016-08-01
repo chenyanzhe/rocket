@@ -183,6 +183,62 @@ function eatClickIf($parse, $rootScope)
 }
 
 /**
+ * vectorMap - Directive for Vector map plugin
+ */
+function vectorMap() {
+    return {
+        restrict: 'A',
+        scope: {
+            myMapData: '='
+        },
+        link: function (scope, element, attrs) {
+            var map = element.vectorMap({
+                map: 'world_mill_en',
+                backgroundColor: "#999c9e",
+                hoverOpacity: 0.7,
+                hoverColor: false,
+                scaleColors: ["#1ab394", "#22d6b1"],
+                markerStyle: {
+                    initial: {
+                        fill: '#e4e4e4',
+                        "fill-opacity": 0.9,
+                        stroke: 'none',
+                        "stroke-width": 0,
+                        "stroke-opacity": 0
+                    }
+                },
+                markers: [
+                    {latLng: [22.267, 114.188], name: 'East Asia'},
+                    {latLng: [1.283, 103.833], name: 'Southeast Asia'},
+                    {latLng: [41.5908, -93.6208], name: 'Central US'},
+                    {latLng: [37.3719, -79.8164], name: 'East US'},
+                    {latLng: [36.6681, -78.3889], name: 'East US 2'},
+                    {latLng: [37.783, -122.417], name: 'West US'},
+                    {latLng: [41.8819, -87.6278], name: 'North Central US'},
+                    {latLng: [29.4167, -98.5], name: 'South Central US'},
+                    {latLng: [53.3478, -6.2597], name: 'North Europe'}
+                ],
+                series: {
+                    markers: [
+                        {
+                            values: scope.myMapData,
+                            scale: ["#1ab394", "#22d6b1"],
+                            normalizeFunction: 'polynomial'
+                        }
+                    ]
+                },
+            });
+            var destroyMap = function(){
+                element.remove();
+            };
+            scope.$on('$destroy', function() {
+                destroyMap();
+            });
+        }
+    }
+}
+
+/**
  *
  * Pass all functions into module
  */
@@ -193,4 +249,5 @@ angular
     .directive('iboxTools', iboxTools)
     .directive('minimalizaSidebar', minimalizaSidebar)
     .directive('iboxToolsFullScreen', iboxToolsFullScreen)
-    .directive('eatClickIf', eatClickIf);
+    .directive('eatClickIf', eatClickIf)
+    .directive('vectorMap', vectorMap);

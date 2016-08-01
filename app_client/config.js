@@ -7,7 +7,7 @@
  *
  */
 function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
-    $urlRouterProvider.otherwise("/dashboards/costs");
+    $urlRouterProvider.otherwise("/dashboards/overview");
 
     $ocLazyLoadProvider.config({
         // Set to true if you want to see what and when is dynamically loaded
@@ -32,6 +32,18 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
                             serie: true,
                             name: 'angular-flot',
                             files: ['lib/js/plugins/flot/jquery.flot.js', 'lib/js/plugins/flot/jquery.flot.time.js', 'lib/js/plugins/flot/jquery.flot.tooltip.min.js', 'lib/js/plugins/flot/jquery.flot.spline.js', 'lib/js/plugins/flot/jquery.flot.resize.js', 'lib/js/plugins/flot/jquery.flot.pie.js', 'lib/js/plugins/flot/curvedLines.js', 'lib/js/plugins/flot/angular-flot.js', ]
+                        },
+                        {
+                            serie: true,
+                            files: ['lib/js/plugins/jvectormap/jquery-jvectormap-2.0.2.min.js', 'lib/js/plugins/jvectormap/jquery-jvectormap-2.0.2.css']
+                        },
+                        {
+                            serie: true,
+                            files: ['lib/js/plugins/jvectormap/jquery-jvectormap-world-mill-en.js']
+                        },
+                        {
+                            name: 'angles',
+                            files: ['lib/js/plugins/chartJs/angles.js', 'lib/js/plugins/chartJs/Chart.min.js']
                         }
                     ]);
                 }
