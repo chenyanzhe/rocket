@@ -132,30 +132,6 @@ function chartJsCtrl() {
         datasetStrokeWidth : 2,
         datasetFill : true
     };
-
-    /**
-     * Data for Doughnut chart
-     */
-    this.doughnutData = [
-        {
-            value: 300,
-            color:"#a3e1d4",
-            highlight: "#1ab394",
-            label: "App"
-        },
-        {
-            value: 50,
-            color: "#dedede",
-            highlight: "#1ab394",
-            label: "Software"
-        },
-        {
-            value: 100,
-            color: "#A4CEE8",
-            highlight: "#1ab394",
-            label: "Laptop"
-        }
-    ];
 }
 
 angular
