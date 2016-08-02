@@ -191,7 +191,7 @@ function vectorMap() {
             scope.$on("mapDataPrepared", function (event, args) {
                 var map = element.vectorMap({
                     map: 'world_mill_en',
-                    backgroundColor: "#999c9e",
+                    backgroundColor: "#B4B5B6",
                     hoverOpacity: 0.7,
                     hoverColor: false,
                     onRegionTipShow: function (e, label, code) {
@@ -212,7 +212,7 @@ function vectorMap() {
                             {
                                 values: args.data,
                                 scale: ["#1AB394", "#ED5565"],
-                                normalizeFunction: 'polynomial'
+                                normalizeFunction: 'linear'
                             }
                         ]
                     },
