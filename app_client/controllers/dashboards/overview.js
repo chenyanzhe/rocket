@@ -74,6 +74,22 @@ function vmLocDistDrawerCtrl($scope) {
 	})
 };
 
+function vmLocMapDrawerCtrl($scope) {
+    $scope.$on("vmDataPrepared", function (event, args) {
+        var counts = {};
+        $scope.vmData.forEach(function(vmObj) { counts[vmObj.location] = (counts[vmObj.location] || 0) + 1; });
+        var markers = [];
+        var data = [];
+        for (var key in counts) {
+            markers.push({latLng: [$scope.locData[key].latitude, $scope.locData[key].longitude],
+                name: $scope.locData[key].displayName});
+            data.push(counts[key]);
+        }
+
+        $scope.$broadcast("mapDataPrepared", {markers: markers, data: data});
+    })
+};
+
 function chunk(data) {
     var newData = [[], [], []];
     var colId = 0;
@@ -108,3 +124,4 @@ angular
     .controller('vmDataCtrl', vmDataCtrl)
     .controller('vmLocDistDrawerCtrl', vmLocDistDrawerCtrl)
     .controller('vmUsageCtrl', vmUsageCtrl)
+    .controller('vmLocMapDrawerCtrl', vmLocMapDrawerCtrl)

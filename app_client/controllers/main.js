@@ -88,37 +88,6 @@ function subscriptionCtrl($scope) {
     };
 }
 
-/**
- * dashboardMap - data for Map plugin
- * used in Dashboard 2 view
- */
-
-function dashboardMap() {
-    var data = [
-        887.70,
-        755.16,
-        310.69,
-        405.17,
-        248.31,
-        207.35,
-        217.22,
-        280.71,
-        210.32,
-        325.42,
-        887.70,
-        755.16,
-        310.69,
-        405.17,
-        248.31,
-        207.35,
-        217.22,
-        280.71,
-        210.32
-    ];
-
-    this.data = data;
-}
-
 function chartJsCtrl() {
     this.lineDataDashboard4 = {
         labels: ["January", "February", "March", "April", "May", "June", "July"],
@@ -194,5 +163,4 @@ angular
     .controller('MainCtrl', MainCtrl)
     .controller('wizardCtrl', wizardCtrl)
     .controller('subscriptionCtrl', subscriptionCtrl)
-    .controller('dashboardMap', dashboardMap)
     .controller('chartJsCtrl', chartJsCtrl);
