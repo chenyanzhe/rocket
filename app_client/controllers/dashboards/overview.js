@@ -1,57 +1,42 @@
-// FIXME: it should only maintianed in filter
-function locationNameFormatUtil (name) {
-	var nameMapping = {
-		"japanwest": "Japan West",
-		"eastasia": "East Asia",
-		"centralus": "Central US",
-		"eastus": "East US",
-		"eastus2": "East US 2",
-		"westus": "West US",
-		"northcentralus": "North Central US",
-		"southcentralus": "South Central US",
-		"northeurope": "North Europe",
-		"westeurope": "West Europe",
-		"southeastasia": "Southeast Asia",
-		"japaneast": "Japan East",
-		"brazilsouth": "Brazil South",
-		"australiaeast": "Australia East",
-		"sustraliasoutheast": "Australia Southeast",
-		"southindia": "South India",
-		"centralindia": "Central India",
-		"westindia": "West India",
-		"canadacentral": "Canada Central",
-		"canadaeast": "Canada East"
-	};
-	if (name in nameMapping) {
-		return nameMapping[name];
-	} else {
-		return "Unknown";
-	}
-}
-
-
-function vmDataCtrl($scope, vmListService) {
+function vmDataCtrl($scope, vmListService, geoLocService) {
 	$scope.loadingChart = true;
-	$scope.loadingAmount = true;
 	$scope.loadingUsage = true;
 
-	vmListService
-		.success(function (data) {
-			$scope.vmData = data;
-			$scope.$broadcast("vmDataPrepared", {
-			});
-		})
-		.error(function (err) {
-			console.log(err);
-		});
+    async.parallel([
+        function(callback) {
+            vmListService
+                .success(function (data) {
+                    $scope.vmData = data;
+                    $scope.totalAmount = data.length;
+                    callback();
+                })
+                .error(function (err) {
+                    callback(err);
+                });
+        },
+        function(callback) {
+            geoLocService
+                .success(function (data) {
+                    $scope.locData = {};
+                    for (var i = 0; i < data.length; i++) {
+                        $scope.locData[data[i].name] = data[i];
+                    }
+                    callback();
+                })
+                .error(function (err) {
+                    callback(err);
+                })
+        }
+    ],
+    // optional callback
+    function(err, results) {
+        if (err) {
+            console.log("vmDataCtrl" + err);
+        } else {
+            $scope.$broadcast("vmDataPrepared", {});
+        }
+    });
 };
-
-function vmTotalAmountCtrl($scope) {
-	$scope.$on("vmDataPrepared", function (event, args) {
-		$scope.totalAmount = $scope.vmData.length;
-		$scope.loadingAmount = false;
-	})
-}
 
 function vmLocDistDrawerCtrl($scope) {
 	$scope.$on("vmDataPrepared", function (event, args) {
@@ -59,7 +44,7 @@ function vmLocDistDrawerCtrl($scope) {
 		$scope.vmData.forEach(function(vmObj) { counts[vmObj.location] = (counts[vmObj.location] || 0) + 1; });
 		var pieData = [];
 		for (var key in counts) {
-			pieData.push({label: locationNameFormatUtil(key), data: counts[key]});
+			pieData.push({label: $scope.locData[key].displayName, data: counts[key]});
 		}
 
 	    var pieOptions = {
@@ -122,5 +107,4 @@ angular
     .module('inspinia')
     .controller('vmDataCtrl', vmDataCtrl)
     .controller('vmLocDistDrawerCtrl', vmLocDistDrawerCtrl)
-    .controller('vmTotalAmountCtrl', vmTotalAmountCtrl)
     .controller('vmUsageCtrl', vmUsageCtrl)

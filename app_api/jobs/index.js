@@ -132,6 +132,22 @@ function startDailyCostJob() {
             console.log("\t" + rST);
             dailyCostWorker();
         },
+        // runOnInit: true,
+        start: true
+    })
+}
+
+function startLocationJob() {
+    var locationWorker = require('./location').getLocationList;
+    var locationJob = new CronJob({
+        cronTime: '0 0 0 */1 * *', // run every day
+        onTick: function() {
+            console.log('INIT: locationJob started!');
+            var moment = require('moment');
+            var rST = moment().format("YYYY-MM-DDThh:mm:ssZ").toString();
+            console.log("\t" + rST);
+            locationWorker();
+        },
         runOnInit: true,
         start: true
     })
@@ -166,6 +182,7 @@ function setupSchema(callback) {
     require('../models/ratecard');
     require('../models/usage');
     require('../models/cost');
+    require('../models/location');
     callback(null);
 }
 
@@ -208,6 +225,7 @@ function startCronJobs(callback) {
     startHourlyUsageJob();
     startDailyUsageJob();
     startDailyCostJob();
+    startLocationJob();
     callback(null);
 }
 
