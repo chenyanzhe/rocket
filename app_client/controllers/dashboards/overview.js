@@ -119,9 +119,51 @@ function vmUsageCtrl($scope, vmUsageService) {
 	})
 };
 
+function lastMonthCostCtrl($scope, billingService) {
+    var rST = moment().startOf('day').subtract(1, 'month').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
+    var rET = moment().startOf('day').subtract(1, 'day').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
+    billingService.getBillingFunc(rST, rET)
+        .success(function (data) {
+            var totalCosts = 0;
+            for (var i = 0; i < data.length; i++) {
+                totalCosts += data[i].totalCost;
+            }
+            $scope.monthlyCost = totalCosts;
+        })
+        .error(function (err) {
+            console.log(err);
+            $scope.monthlyCost = 0;
+        });
+};
+
+function todayResUsageCtrl($scope, billingService) {
+    var rST = moment().startOf('day').subtract(2, 'day').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
+    var rET = moment().startOf('day').subtract(1, 'day').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
+    billingService.getBillingFunc(rST, rET)
+        .success(function (data) {
+            var storageCnt = 0;
+            var sqlDBCnt = 0;
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].resourceType === "Microsoft.Sql/servers")
+                    sqlDBCnt++;
+                else if (data[i].resourceType === "Microsoft.Storage/storageAccounts")
+                    storageCnt++;
+            }
+            $scope.storageCnt = storageCnt;
+            $scope.sqlDBCnt = sqlDBCnt;
+        })
+        .error(function (err) {
+            console.log(err);
+            $scope.storageCnt = 0;
+            $scope.sqlDBCnt = 0;
+        });
+}
+
 angular
     .module('inspinia')
     .controller('vmDataCtrl', vmDataCtrl)
     .controller('vmLocDistDrawerCtrl', vmLocDistDrawerCtrl)
     .controller('vmUsageCtrl', vmUsageCtrl)
     .controller('vmLocMapDrawerCtrl', vmLocMapDrawerCtrl)
+    .controller('lastMonthCostCtrl', lastMonthCostCtrl)
+    .controller('todayResUsageCtrl', todayResUsageCtrl);

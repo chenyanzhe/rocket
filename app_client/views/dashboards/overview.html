@@ -9,8 +9,8 @@
                         <span class="label label-success pull-right">Monthly</span>
                         <h5>Cost</h5>
                     </div>
-                    <div class="ibox-content">
-                        <h1 class="no-margins">$ 386,200</h1>
+                    <div class="ibox-content" ng-controller="lastMonthCostCtrl">
+                        <h1 class="no-margins"> $ {{ monthlyCost | number: 0 }}</h1>
                         <small>OSTC SHANGHAI DEV</small>
                     </div>
                 </div>
@@ -24,17 +24,17 @@
                     </div>
                     <div class="ibox-content">
 
-                        <div class="row">
+                        <div class="row" ng-controller="todayResUsageCtrl">
                             <div class="col-md-4">
                                 <h1 class="no-margins">{{ totalAmount }}</h1>
                                 <small>Virtual Machines</small>
                             </div>
                             <div class="col-md-4">
-                                <h1 class="no-margins">46</h1>
+                                <h1 class="no-margins">{{ storageCnt }}</h1>
                                 <small>Storage Accounts</small>
                             </div>
                             <div class="col-md-4">
-                                <h1 class="no-margins">3</h1>
+                                <h1 class="no-margins">{{ sqlDBCnt }}</h1>
                                 <small>SQL Databases</small>
                             </div>
                         </div>
