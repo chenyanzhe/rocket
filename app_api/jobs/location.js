@@ -1,6 +1,7 @@
 module.exports.getLocationList = function () {
     var request = require("request");
     var mongoose = require('mongoose');
+    var winston = require('winston');
     var Sub = mongoose.model('Subscription');
     var Loc = mongoose.model('Location');
 
@@ -19,30 +20,32 @@ module.exports.getLocationList = function () {
         };
 
         request(options, function (error, response, body) {
-            if (error) throw new Error(error);
-            var locArr = JSON.parse(body).value;
-            for (var i = 0; i < locArr.length; i++) {
-                Loc.update(
-                    { name: locArr[i].name },
-                    {
-                        id: locArr[i].id,
-                        name: locArr[i].name,
-                        displayName: locArr[i].displayName,
-                        longitude: locArr[i].longitude,
-                        latitude: locArr[i].latitude
-                    }, { upsert: true }, function (err, locItem) {
-                        if (err) {
-                            console.log(err);
-                            console.log(locItem);
-                        }
-                    });
+            if (error) {
+                winston.log('error', '[Location] Get Location job error %s', error);
+            } else {
+                var locArr = JSON.parse(body).value;
+                for (var i = 0; i < locArr.length; i++) {
+                    Loc.update(
+                        { name: locArr[i].name },
+                        {
+                            id: locArr[i].id,
+                            name: locArr[i].name,
+                            displayName: locArr[i].displayName,
+                            longitude: locArr[i].longitude,
+                            latitude: locArr[i].latitude
+                        }, { upsert: true }, function (err, locItem) {
+                            if (err) {
+                                winston.log('error', '[Location] Update Location table error %s', err);
+                            }
+                        });
+                }
+                winston.log('info', '[Location] Location for subscription %s is updated', subItem.displayName);
             }
-            console.log("\tgeo loc on " + subItem.displayName + " updated!");
         });
 
     }).on('error', function (err) {
-        console.log("\tFail to get geo loc", err);
+        winston.log('error', '[Location] Subscription table iteration error %s', err);
     }).on('close', function (){
-        console.log("\tfinish updating geo locs on all subscriptions");
+        winston.log('info', '[Location] Finish iterating subscription table');
     });
 };

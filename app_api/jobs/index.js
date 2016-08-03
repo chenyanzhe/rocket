@@ -1,4 +1,30 @@
 require('dotenv').load();
+var winston = require('winston');
+var moment = require('moment');
+winston
+    .add(winston.transports.File, {
+        name: 'jobs-info',
+        filename: 'logs/jobs-info.log',
+        level: 'info',
+        timestamp: function () {
+            return moment().format("YYYY-MM-DDTHH:mm:ss").toString();
+        }
+    })
+    .add(winston.transports.File, {
+        name: 'jobs-error',
+        filename: 'logs/jobs-error.log',
+        level: 'error',
+        timestamp: function () {
+            return moment().format("YYYY-MM-DDTHH:mm:ss").toString();
+        }
+    })
+    .remove(winston.transports.Console)
+    .add(winston.transports.Console, {
+        colorize: true,
+        timestamp: function () {
+            return moment().format("YYYY-MM-DDTHH:mm:ss").toString();
+        }
+    });
 
 /* ----------------------------------------------------------------------------------------------------------------*/
 
@@ -12,7 +38,7 @@ var mongoose = require('mongoose');
 // To be called when process is restarted or terminated
 var gracefulShutdown = function(msg, callback) {
     mongoose.connection.close(function() {
-        console.log('Mongoose disconnected through ' + msg);
+        winston.log('info', '[INIT] Mongoose disconnected through %s', msg);
         callback();
     });
 };
@@ -43,49 +69,64 @@ process.on('SIGTERM', function() {
 
 var CronJob = require('cron').CronJob;
 
-function startTokenJob() {
+function startTokenJob(callback) {
     var tokenWorker = require('./token').getAccessToken;
     var tokenJob = new CronJob({
         cronTime: '0 */30 * * * *', // run every 30 minutes
         onTick: function () {
-            console.log('INIT: tokenJob started!');
-            var moment = require('moment');
-            var rST = moment().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            console.log("\t" + rST);
+            winston.log('info', '[Token] Token job activated');
             tokenWorker();
         },
         start: true
     });
+    callback();
 }
 
-function startSubscriptionJob() {
+function startSubscriptionJob(callback) {
     var subscriptionWorker = require('./subscription').getSubscriptionList;
     var subscriptionJob = new CronJob({
         cronTime: '0 0 0 */1 * *', // run every day
         onTick: function () {
-            console.log('INIT: subscriptionJob started!');
-            var moment = require('moment');
-            var rST = moment().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            console.log("\t" + rST);
+            winston.log('info', '[Subscription] Subscription job activated');
             subscriptionWorker();
         },
+        runOnInit: true,
         start: true
     });
+    callback();
 }
 
-function startRateCardJob() {
+function startRateCardJob(callback) {
     var rateCardWorker = require('./ratecard').getRateCardList;
     var rateCardJob = new CronJob({
         cronTime: '0 0 0 */1 * *', // run every day
         onTick: function () {
-            console.log('INIT: rateCardJob started!');
-            var moment = require('moment');
-            var rST = moment().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            console.log("\t" + rST);
+            winston.log('info', '[RateCard] RateCard job activated');
             rateCardWorker();
         },
+        runOnInit: true,
         start: true
     });
+    callback();
+}
+
+function startLocationJob(callback) {
+    var locationWorker = require('./location').getLocationList;
+    var locationJob = new CronJob({
+        cronTime: '0 0 0 */1 * *', // run every day
+        onTick: function() {
+            winston.log('info', '[Location] Location job activated');
+            locationWorker();
+        },
+        runOnInit: true,
+        start: true
+    });
+    callback();
+}
+
+function catchUpJob(callback) {
+    var catchUpWorker = require('./catchup').catchUp;
+    catchUpWorker(callback);
 }
 
 function startDailyUsageJob() {
@@ -93,10 +134,7 @@ function startDailyUsageJob() {
     var dailyUsageJob = new CronJob({
         cronTime: '0 0 23 * * *', // run on 23:00:00
         onTick: function() {
-            console.log('INIT: dailyUsageJob started!');
-            var moment = require('moment');
-            var rST = moment().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            console.log("\t" + rST);
+            winston.log('info', 'DailyUsage job activated');
             dailyUsageWorker();
         },
         // runOnInit: true,
@@ -109,29 +147,10 @@ function startDailyCostJob() {
     var dailyCostJob = new CronJob({
         cronTime: '0 0 23 * * *', // run on 23:00:00
         onTick: function() {
-            console.log('INIT: dailyCostJob started!');
-            var moment = require('moment');
-            var rST = moment().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            console.log("\t" + rST);
+            winston.log('info', 'DailyCost job activated');
             dailyCostWorker();
         },
         // runOnInit: true,
-        start: true
-    })
-}
-
-function startLocationJob() {
-    var locationWorker = require('./location').getLocationList;
-    var locationJob = new CronJob({
-        cronTime: '0 0 0 */1 * *', // run every day
-        onTick: function() {
-            console.log('INIT: locationJob started!');
-            var moment = require('moment');
-            var rST = moment().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            console.log("\t" + rST);
-            locationWorker();
-        },
-        runOnInit: true,
         start: true
     })
 }
@@ -143,24 +162,24 @@ function startLocationJob() {
  */
 
 function connectDB(callback) {
-    console.log("INIT: connecting db ...");
+    winston.log('info', '[INIT] Mongoose connecting to %s', process.env.DB_URI);
     mongoose.connect(process.env.DB_URI);
 
     // CONNECTION EVENTS
     mongoose.connection.on('connected', function() {
-        console.log('\tMongoose connected to ' + process.env.DB_URI);
+        winston.log('info', '[INIT] Mongoose connected to %s', process.env.DB_URI);
         callback(null);
     });
     mongoose.connection.on('error', function(err) {
-        console.log('\tMongoose connection error: ' + err);
+        winston.log('error', '[INIT] Mongoose connection error %s', err);
     });
     mongoose.connection.on('disconnected', function() {
-        console.log('\tMongoose disconnected');
+        winston.log('info', '[INIT] Mongoose disconnected');
     });
 }
 
 function setupSchema(callback) {
-    console.log("INIT: setting up schema ...");
+    winston.log('info', '[INIT] Setting up schemas');
     require('../models/subscription');
     require('../models/ratecard');
     require('../models/usage');
@@ -170,7 +189,7 @@ function setupSchema(callback) {
 }
 
 function getAccessToken(callback) {
-    console.log("INIT: access token is preparing ...");
+    winston.log('info', '[INIT] Get access token for the first time');
     var request = require("request");
 
     var options = { method: 'POST',
@@ -191,24 +210,15 @@ function getAccessToken(callback) {
     };
 
     request(options, function (err, res, body) {
-        if (err) throw new Error(err);
-        // TODO: handle exceptions here
-        var ret = JSON.parse(body);
-        global.access_token = ret.token_type + " " + ret.access_token;
-        console.log("INIT: access token is ready!");
-        callback(null);
+        if (err) {
+            winston.log('error', '[INIT] Get access token error %s', err);
+        } else {
+            var ret = JSON.parse(body);
+            global.access_token = ret.token_type + " " + ret.access_token;
+            winston.log('info', '[INIT] Access token is ready');
+            callback(null);
+        }
     });
-}
-
-function startCronJobs(callback) {
-    console.log("INIT: start cron jobs!");
-    startTokenJob();
-    startSubscriptionJob();
-    startRateCardJob();
-    startDailyUsageJob();
-    startDailyCostJob();
-    startLocationJob();
-    callback(null);
 }
 
 var async = require('async');
@@ -216,7 +226,15 @@ async.series([
     connectDB,
     setupSchema,
     getAccessToken,
-    startCronJobs
+    startTokenJob,
+    startSubscriptionJob,
+    startRateCardJob,
+    startLocationJob,
+    catchUpJob
 ], function (err) {
-    if (err) throw new Error(err);
+    if (err) {
+        winston.log('error', '[INIT] Serialize jobs error %s', err);
+    } else {
+        winston.log('info', '[INIT] Finish launching jobs');
+    }
 });

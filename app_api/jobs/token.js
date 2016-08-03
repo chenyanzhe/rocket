@@ -1,5 +1,6 @@
 module.exports.getAccessToken = function () {
     var request = require("request");
+    var winston = require('winston');
 
     var options = { method: 'POST',
         url: 'https://login.microsoftonline.com/microsoft.onmicrosoft.com/oauth2/token',
@@ -19,9 +20,12 @@ module.exports.getAccessToken = function () {
     };
 
     request(options, function (err, res, body) {
-        if (err) throw new Error(err);
-        var ret = JSON.parse(body);
-        global.access_token = ret.token_type + " " + ret.access_token;
-        console.log("access token updated!");
+        if (err) {
+            winston.log('error', '[Token] Get access token job error %s', err);
+        } else {
+            var ret = JSON.parse(body);
+            global.access_token = ret.token_type + " " + ret.access_token;
+            winston.log('info', '[Token] Access token is updated');
+        }
     });
 };

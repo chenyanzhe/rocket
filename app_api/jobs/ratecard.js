@@ -1,6 +1,7 @@
 module.exports.getRateCardList = function () {
     var request = require("request");
     var mongoose = require('mongoose');
+    var winston = require('winston');
     var Sub = mongoose.model('Subscription');
     var RC = mongoose.model('RateCard');
 
@@ -22,35 +23,37 @@ module.exports.getRateCardList = function () {
         };
 
         request(options, function (error, response, body) {
-            if (error) throw new Error(error);
-            var metersArr = JSON.parse(body).Meters;
-            for (var i = 0; i < metersArr.length; i++) {
-                RC.update(
-                    { subscriptionId: subItem.subscriptionId, MeterId: metersArr[i].MeterId },
-                    {
-                        subscriptionId: subItem.subscriptionId,
-                        MeterId: metersArr[i].MeterId,
-                        MeterName: metersArr[i].MeterName,
-                        MeterCategory: metersArr[i].MeterCategory,
-                        MeterSubCategory: metersArr[i].MeterSubCategory,
-                        MeterRegion: metersArr[i].MeterRegion,
-                        MeterRates: metersArr[i].MeterRates["0"],
-                        Unit: metersArr[i].Unit,
-                        EffectiveDate: metersArr[i].EffectiveDate,
-                        IncludedQuantity:  metersArr[i].IncludedQuantity
-                    }, { upsert: true }, function (err, rateCardItem) {
-                        if (err) {
-                            console.log(err);
-                            console.log(rateCardItem);
-                        }
-                    });
+            if (error) {
+                winston.log('error', '[RateCard] Get RateCard job error %s', error);
+            } else {
+                var metersArr = JSON.parse(body).Meters;
+                for (var i = 0; i < metersArr.length; i++) {
+                    RC.update(
+                        {subscriptionId: subItem.subscriptionId, MeterId: metersArr[i].MeterId},
+                        {
+                            subscriptionId: subItem.subscriptionId,
+                            MeterId: metersArr[i].MeterId,
+                            MeterName: metersArr[i].MeterName,
+                            MeterCategory: metersArr[i].MeterCategory,
+                            MeterSubCategory: metersArr[i].MeterSubCategory,
+                            MeterRegion: metersArr[i].MeterRegion,
+                            MeterRates: metersArr[i].MeterRates["0"],
+                            Unit: metersArr[i].Unit,
+                            EffectiveDate: metersArr[i].EffectiveDate,
+                            IncludedQuantity: metersArr[i].IncludedQuantity
+                        }, {upsert: true}, function (err, rateCardItem) {
+                            if (err) {
+                                winston.log('error', '[RateCard] Update RateCard table error %s', err);
+                            }
+                        });
+                }
+                winston.log('info', '[RateCard] RateCard for subscription %s is updated', subItem.displayName);
             }
-            console.log("\trate card on " + subItem.displayName + " updated!");
         });
 
     }).on('error', function (err) {
-        console.log("\tFail to get rate cards", err);
-    }).on('close', function (){
-        console.log("\tfinish updating rate cards on all subscriptions");
+        winston.log('error', '[RateCard] Subscription table iteration error %s', err);
+    }).on('close', function () {
+        winston.log('info', '[RateCard] Finish iterating subscription table');
     });
 };
