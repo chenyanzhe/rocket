@@ -40,6 +40,8 @@ module.exports.getDailyCost = function () {
                 { $sort: { totalPrice: -1 } }
             ]).cursor({ batchSize: 1000 }).exec();
 
+            // db.dailyusages.aggregate([{$group: {_id: {reportedStartTime: "$reportedStartTime", reportedEndTime: "$reportedEndTime"}}}, {$project: {_id: 0, reportedStartTime: "$_id.reportedStartTime", reportedEndTime: "$_id.reportedEndTime"}}, {$sort: {reportedStartTime: 1}}])
+
             costCursor.each(function(error, doc) {
                 if (error) {
                     console.log(error);

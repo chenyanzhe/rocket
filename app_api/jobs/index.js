@@ -88,23 +88,6 @@ function startRateCardJob() {
     });
 }
 
-function startHourlyUsageJob() {
-    var hourlyUsageWorker = require('./usage').getHourlyUsage;
-    var hourlyUsageJob = new CronJob({
-        // cronTime: '0 30 * * * *', // run on **:30:00
-        cronTime: '0 0 0 */1 * *', // run every day
-        onTick: function () {
-            console.log('INIT: hourlyUsageJob started!');
-            var moment = require('moment');
-            var rST = moment().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            console.log("\t" + rST);
-            hourlyUsageWorker();
-        },
-        // runOnInit: true,
-        start: true
-    });
-}
-
 function startDailyUsageJob() {
     var dailyUsageWorker = require('./usage').getDailyUsage;
     var dailyUsageJob = new CronJob({
@@ -222,7 +205,6 @@ function startCronJobs(callback) {
     startTokenJob();
     startSubscriptionJob();
     startRateCardJob();
-    startHourlyUsageJob();
     startDailyUsageJob();
     startDailyCostJob();
     startLocationJob();
