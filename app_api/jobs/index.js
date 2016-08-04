@@ -129,32 +129,6 @@ function catchUpJob(callback) {
     catchUpWorker(callback);
 }
 
-function startDailyUsageJob() {
-    var dailyUsageWorker = require('./usage').getDailyUsage;
-    var dailyUsageJob = new CronJob({
-        cronTime: '0 0 23 * * *', // run on 23:00:00
-        onTick: function() {
-            winston.log('info', 'DailyUsage job activated');
-            dailyUsageWorker();
-        },
-        // runOnInit: true,
-        start: true
-    })
-}
-
-function startDailyCostJob() {
-    var dailyCostWorker = require('./cost').getDailyCost;
-    var dailyCostJob = new CronJob({
-        cronTime: '0 0 23 * * *', // run on 23:00:00
-        onTick: function() {
-            winston.log('info', 'DailyCost job activated');
-            dailyCostWorker();
-        },
-        // runOnInit: true,
-        start: true
-    })
-}
-
 /* ----------------------------------------------------------------------------------------------------------------*/
 
 /*
@@ -228,9 +202,9 @@ async.series([
     getAccessToken,
     startTokenJob,
     startSubscriptionJob,
+    catchUpJob,
     startRateCardJob,
-    startLocationJob,
-    catchUpJob
+    startLocationJob
 ], function (err) {
     if (err) {
         winston.log('error', '[INIT] Serialize jobs error %s', err);
