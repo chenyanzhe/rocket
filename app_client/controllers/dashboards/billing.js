@@ -70,11 +70,11 @@ function whoToBlame(billingInfo) {
 
 function billingCtrl($scope, $timeout, billingService) {
     var defaultEnd = moment().startOf('day');
-    var defaultStart = moment(defaultEnd).subtract(1, 'week');
+    var defaultStart = moment().startOf('week');
     $scope.daterange = {startDate: defaultStart, endDate: defaultEnd};
 
-    var startArg = defaultStart.utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-    var endArg = defaultEnd.utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
+    var startArg = defaultStart.utc().format("YYYY-MM-DDTHH:mm:ssZ").toString();
+    var endArg = defaultEnd.utc().format("YYYY-MM-DDTHH:mm:ssZ").toString();
     billingService.getBillingFunc(startArg, endArg)
         .success(function (data) {
             $scope.billingInfo = data;
@@ -88,8 +88,8 @@ function billingCtrl($scope, $timeout, billingService) {
         });
 
     $scope.queryCosts = function() {
-        var startArg = $scope.daterange.startDate.startOf('day').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-        var endArg =$scope.daterange.endDate.startOf('day').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
+        var startArg = $scope.daterange.startDate.utc().startOf('day').format("YYYY-MM-DDTHH:mm:ssZ").toString();
+        var endArg =$scope.daterange.endDate.utc().startOf('day').format("YYYY-MM-DDTHH:mm:ssZ").toString();
         billingService.getBillingFunc(startArg, endArg)
             .success(function (data) {
                 $('.footable').trigger('footable_initialize');
