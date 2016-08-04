@@ -120,8 +120,8 @@ function vmUsageCtrl($scope, vmUsageService) {
 };
 
 function lastMonthCostCtrl($scope, billingService) {
-    var rST = moment().startOf('day').subtract(1, 'month').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-    var rET = moment().startOf('day').subtract(1, 'day').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
+    var rST = moment().utc().startOf('month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
+    var rET = moment().utc().startOf('day').format("YYYY-MM-DDTHH:mm:ssZ").toString();
     billingService.getBillingFunc(rST, rET)
         .success(function (data) {
             var totalCosts = 0;
@@ -137,8 +137,8 @@ function lastMonthCostCtrl($scope, billingService) {
 };
 
 function todayResUsageCtrl($scope, billingService) {
-    var rST = moment().startOf('day').subtract(2, 'day').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-    var rET = moment().startOf('day').subtract(1, 'day').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
+    var rST = moment().utc().startOf('day').subtract(1, 'day').format("YYYY-MM-DDTHH:mm:ssZ").toString();
+    var rET = moment().utc().startOf('day').format("YYYY-MM-DDTHH:mm:ssZ").toString();
     billingService.getBillingFunc(rST, rET)
         .success(function (data) {
             var storageCnt = 0;
@@ -161,11 +161,12 @@ function todayResUsageCtrl($scope, billingService) {
 
 function pastHalfYearCostCtrl($scope, billingService) {
     var halfYearData = [];
+
     async.series([
         function(callback) {
-            var rST = moment().startOf('day').subtract(6, 'month').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            var rET = moment().startOf('day').subtract(5, 'month').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            var rKey = moment().startOf('day').subtract(6, 'month').utc().format("YYYY-MM").toString();
+            var rST = moment().utc().startOf('month').subtract(5, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
+            var rET = moment().utc().startOf('month').subtract(4, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
+            var rKey = moment().utc().startOf('month').subtract(5, 'month').format("YYYY-MM").toString();
 
             billingService.getBillingFunc(rST, rET)
                 .success(function (data) {
@@ -181,9 +182,9 @@ function pastHalfYearCostCtrl($scope, billingService) {
                 });
         },
         function(callback) {
-            var rST = moment().startOf('day').subtract(5, 'month').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            var rET = moment().startOf('day').subtract(4, 'month').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            var rKey = moment().startOf('day').subtract(5, 'month').utc().format("YYYY-MM").toString();
+            var rST = moment().utc().startOf('month').subtract(4, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
+            var rET = moment().utc().startOf('month').subtract(3, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
+            var rKey = moment().utc().startOf('month').subtract(4, 'month').format("YYYY-MM").toString();
 
             billingService.getBillingFunc(rST, rET)
                 .success(function (data) {
@@ -199,9 +200,9 @@ function pastHalfYearCostCtrl($scope, billingService) {
                 });
         },
         function(callback) {
-            var rST = moment().startOf('day').subtract(4, 'month').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            var rET = moment().startOf('day').subtract(3, 'month').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            var rKey = moment().startOf('day').subtract(4, 'month').utc().format("YYYY-MM").toString();
+            var rST = moment().utc().startOf('month').subtract(3, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
+            var rET = moment().utc().startOf('month').subtract(2, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
+            var rKey = moment().utc().startOf('month').subtract(3, 'month').format("YYYY-MM").toString();
 
             billingService.getBillingFunc(rST, rET)
                 .success(function (data) {
@@ -217,9 +218,9 @@ function pastHalfYearCostCtrl($scope, billingService) {
                 });
         },
         function(callback) {
-            var rST = moment().startOf('day').subtract(3, 'month').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            var rET = moment().startOf('day').subtract(2, 'month').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            var rKey = moment().startOf('day').subtract(3, 'month').utc().format("YYYY-MM").toString();
+            var rST = moment().utc().startOf('month').subtract(2, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
+            var rET = moment().utc().startOf('month').subtract(1, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
+            var rKey = moment().utc().startOf('month').subtract(2, 'month').format("YYYY-MM").toString();
 
             billingService.getBillingFunc(rST, rET)
                 .success(function (data) {
@@ -235,9 +236,9 @@ function pastHalfYearCostCtrl($scope, billingService) {
                 });
         },
         function(callback) {
-            var rST = moment().startOf('day').subtract(2, 'month').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            var rET = moment().startOf('day').subtract(1, 'month').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            var rKey = moment().startOf('day').subtract(2, 'month').utc().format("YYYY-MM").toString();
+            var rST = moment().utc().startOf('month').subtract(1, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
+            var rET = moment().utc().startOf('month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
+            var rKey = moment().utc().startOf('month').subtract(1, 'month').format("YYYY-MM").toString();
 
             billingService.getBillingFunc(rST, rET)
                 .success(function (data) {
@@ -253,9 +254,9 @@ function pastHalfYearCostCtrl($scope, billingService) {
                 });
         },
         function(callback) {
-            var rST = moment().startOf('day').subtract(1, 'month').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            var rET = moment().startOf('day').subtract(1, 'day').utc().format("YYYY-MM-DDThh:mm:ssZ").toString();
-            var rKey = moment().startOf('day').subtract(1, 'month').utc().format("YYYY-MM").toString();
+            var rST = moment().utc().startOf('month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
+            var rET = moment().utc().startOf('day').format("YYYY-MM-DDTHH:mm:ssZ").toString();
+            var rKey = moment().utc().startOf('month').format("YYYY-MM").toString();
 
             billingService.getBillingFunc(rST, rET)
                 .success(function (data) {
@@ -300,7 +301,7 @@ function pastHalfYearCostCtrl($scope, billingService) {
             }
             $scope.lineData = lineData;
             $scope.totalHalfYearCosts = totalHalfYearCosts;
-            $scope.lastMonthCosts = halfYearData[halfYearData.length - 1].value;
+            $scope.lastMonthCosts = halfYearData[halfYearData.length - 2].value;
 
             $scope.lineOptions = {
                 scaleShowGridLines : true,
@@ -318,6 +319,8 @@ function pastHalfYearCostCtrl($scope, billingService) {
             };
         }
     });
+
+    $scope.updatedDate = moment().startOf('day').format("YYYY-MM-DD").toString();
 }
 
 angular
