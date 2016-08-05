@@ -1,6 +1,8 @@
 require('dotenv').load();
 var winston = require('winston');
 var moment = require('moment');
+//FIXME: subscription id should be set by user
+global.subscriptionId = '4be8920b-2978-43d7-ab14-04d8549c1d05';
 winston
     .add(winston.transports.File, {
         name: 'jobs-info',

@@ -35,6 +35,11 @@ module.exports.catchUp = function (callback) {
 var fetchExistingTimes = function (cb) {
     var usageCursor = DU.aggregate([
         {
+            $match: {
+                subscriptionId: global.subscriptionId
+            }
+        },
+        {
             $group: {
                 _id: { reportedStartTime: "$reportedStartTime", reportedEndTime: "$reportedEndTime" }
             }
@@ -70,6 +75,12 @@ var findMissingTimes = function (cb) {
     var defaultStartTime = moment("2015-03-04T00:00:00+00:00");
     var currentTime = moment().utc().startOf('day');
 
+    if (existingTimes.length == 0) {
+        missingTimes.push({StartTime: defaultStartTime, EndTime: currentTime});
+        cb();
+        return;
+    }
+
     if (defaultStartTime.isBefore(existingTimes[0].StartTime)) {
         missingTimes.push({StartTime: defaultStartTime, EndTime: existingTimes[0].StartTime});
     }
@@ -90,6 +101,12 @@ var findMissingCosts = function (cb) {
     var defaultStartTime = moment("2015-03-04T00:00:00+00:00");
     var currentTime = moment().utc().startOf('day');
 
+    if (existingCosts.length == 0) {
+        missingCosts.push({StartTime: defaultStartTime, EndTime: currentTime});
+        cb();
+        return;
+    }
+
     if (defaultStartTime.isBefore(existingCosts[0].StartTime)) {
         missingCosts.push({StartTime: defaultStartTime, EndTime: existingCosts[0].StartTime});
     }
@@ -107,6 +124,11 @@ var findMissingCosts = function (cb) {
 
 var fetchExistingCosts = function (cb) {
     var costsCursor = DC.aggregate([
+        {
+            $match: {
+                subscriptionId: global.subscriptionId
+            }
+        },
         {
             $group: {
                 _id: { usageStartTime: "$usageStartTime", usageEndTime: "$usageEndTime" }
@@ -166,263 +188,242 @@ var getDailyUsage = function (ts, cbi) {
 
     winston.log('info', '[Catchup] Getting daily usage from %s to %s', rST, rET);
 
-    var subCursor = Sub.find().cursor();
+    var cToken = '';
+    var nPage = 0;
+    function getAggregatedUsageHelper(cbj) {
 
-    subCursor.on('data', function (subItem) {
-
-        var cToken = '';
-        var nPage = 0;
-        function getAggregatedUsageHelper(cbj) {
-
-            var options = { method: 'GET',
-                url: 'https://management.azure.com/subscriptions/' + subItem.subscriptionId + '/providers/Microsoft.Commerce/UsageAggregates',
-                qs: {
-                    'api-version': '2015-06-01-preview',
-                    reportedStartTime: rST,
-                    reportedEndTime: rET,
-                    aggregationGranularity: 'Daily',
-                    showDetails: 'true'
-                },
-                headers: {
-                    'cache-control': 'no-cache',
-                    'content-type': 'application/json',
-                    authorization: global.access_token
-                }
-            };
-
-            if (cToken != '') options.qs.continuationToken = cToken;
-
-            request(options, function (error, res, body) {
-                if (error) {
-                    winston.log('error', '[Catchup] Get daily usage error', error);
-                    cbj(error);
-                    return;
-                }
-                var usageSegment;
-                try {
-                    usageSegment = JSON.parse(body);
-                } catch (e) {
-                    winston.log('error', '[Catchup] Parsing usage body error', e);
-                    // retry
-                    cbj();
-                    return;
-                }
-                if (usageSegment.nextLink) {
-                    var idx = usageSegment.nextLink.lastIndexOf("=");
-                    cToken = usageSegment.nextLink.substr(idx + 1);
-                    cToken = decodeURIComponent(cToken);
-                } else {
-                    cToken = '';
-                }
-                nPage++;
-                var useSegmentArr = usageSegment.value;
-                var nInvalidData = 0;
-                for (var i = 0; i < useSegmentArr.length; i++) {
-                    var instData = useSegmentArr[i].properties.instanceData;
-                    var infoData = useSegmentArr[i].properties.infoFields;
-                    if (typeof instData === "undefined" &&
-                        Object.keys(infoData).length === 0 &&
-                        infoData.constructor === Object) {
-                        // skip invalid data
-                        nInvalidData++;
-                        continue;
-                    }
-                    if (typeof instData === "undefined") {
-                        // handle classic data
-                        DU.update({
-                                subscriptionId: subItem.subscriptionId,
-                                resourceGroup: "classic",
-                                resourceType: infoData.meteredService,
-                                resourceName: infoData.project,
-                                usageStartTime: new Date(useSegmentArr[i].properties.usageStartTime),
-                                usageEndTime: new Date(useSegmentArr[i].properties.usageEndTime),
-                                meterId: useSegmentArr[i].properties.meterId
-                            },
-                            {
-                                subscriptionId: subItem.subscriptionId,
-                                resourceGroup: "classic",
-                                resourceType: infoData.meteredService,
-                                resourceName: infoData.project,
-                                usageStartTime: new Date(useSegmentArr[i].properties.usageStartTime),
-                                usageEndTime: new Date(useSegmentArr[i].properties.usageEndTime),
-                                meterId: useSegmentArr[i].properties.meterId,
-                                quantity: useSegmentArr[i].properties.quantity,
-                                reportedStartTime: new Date(rST),
-                                reportedEndTime: new Date(rET)
-                            }, {upsert: true}, function (err, usageItem) {
-                                if (err) {
-                                    winston.log('error', '[Catchup] Update DailyUsage table for CLASSIC error', err);
-                                    cbj(err);
-                                }
-                            });
-                    } else {
-                        // handle arm data
-                        var instDataJson = JSON.parse(instData);
-                        var resourceUri = instDataJson["Microsoft.Resources"].resourceUri;
-                        var uriArr = resourceUri.split("/");
-                        var rG, rT, rN = uriArr[uriArr.length - 1];
-                        for (var j = 1; j < uriArr.length; j++) {
-                            if (uriArr[j-1].toLowerCase() === "resourcegroups")
-                                rG = uriArr[j];
-                            else if (uriArr[j-1].toLowerCase() === "providers")
-                                rT = uriArr[j] + "/" + uriArr[j+1];
-                        }
-
-                        DU.update({
-                                subscriptionId: subItem.subscriptionId,
-                                resourceGroup: rG,
-                                resourceType: rT,
-                                resourceName: rN,
-                                usageStartTime: new Date(useSegmentArr[i].properties.usageStartTime),
-                                usageEndTime: new Date(useSegmentArr[i].properties.usageEndTime),
-                                meterId: useSegmentArr[i].properties.meterId
-                            },
-                            {
-                                subscriptionId: subItem.subscriptionId,
-                                resourceGroup: rG,
-                                resourceType: rT,
-                                resourceName: rN,
-                                usageStartTime: new Date(useSegmentArr[i].properties.usageStartTime),
-                                usageEndTime: new Date(useSegmentArr[i].properties.usageEndTime),
-                                meterId: useSegmentArr[i].properties.meterId,
-                                quantity: useSegmentArr[i].properties.quantity,
-                                reportedStartTime: new Date(rST),
-                                reportedEndTime: new Date(rET)
-                            }, {upsert: true}, function (err, usageItem) {
-                                if (err) {
-                                    winston.log('error', '[Catchup] Update DailyUsage table for ARM error', err);
-                                    cbj(err);
-                                }
-                            });
-                    }
-                }
-                winston.log('info', "[Catchup] \tDailyUsage Page #" + nPage + " done:", "total:", useSegmentArr.length, "invalid:", nInvalidData);
-                cbj();
-            });
-        }
-
-        async.doWhilst(
-            getAggregatedUsageHelper,
-            function () {
-                return cToken != '';
+        var options = { method: 'GET',
+            url: 'https://management.azure.com/subscriptions/' + global.subscriptionId + '/providers/Microsoft.Commerce/UsageAggregates',
+            qs: {
+                'api-version': '2015-06-01-preview',
+                reportedStartTime: rST,
+                reportedEndTime: rET,
+                aggregationGranularity: 'Daily',
+                showDetails: 'true'
             },
-            function (err) {
-                if (err) {
-                    winston.log('error', '[Catchup] Iterating Usage Pages error', err);
-                    cbi(err);
-                } else {
-                    winston.log('info', '[Catchup] Finish getting daily usage');
-                    cbi();
-                }
+            headers: {
+                'cache-control': 'no-cache',
+                'content-type': 'application/json',
+                authorization: global.access_token
             }
-        );
+        };
 
-    }).on('error', function (err) {
-        winston.log('error', '[Catchup] Subscription iteration for daily usage error', err);
-        cbi(err);
-    }).on('close', function () {
-        winston.log('info', '[Catchup] Finish iterating all subscriptions for daily usage');
-    });
-};
+        if (cToken != '') options.qs.continuationToken = cToken;
 
-var getDailyCosts = function (ts, cbi) {
-    var subCursor = Sub.find().cursor();
-
-    subCursor.on('data', function (subItem) {
-
-        var startDay = ts.StartTime;
-        var endDay = ts.EndTime;
-        var nDays = 0;
-
-        winston.log('info', '[Catchup] Getting daily costs from %s to %s',
-            startDay.format("YYYY-MM-DDTHH:mm:ssZ").toString(),
-            endDay.format("YYYY-MM-DDTHH:mm:ssZ").toString());
-
-        function getDailyCostHelper(cbj) {
-            var startTime = new Date(startDay.format("YYYY-MM-DDTHH:mm:ssZ").toString());
-            startDay.add(1, 'day');
-            var endTime = new Date(startDay.format("YYYY-MM-DDTHH:mm:ssZ").toString());
-            winston.log('verbose', '[Catchup] \t Calculating daily costs from %s to %s', startTime, endTime);
-            var costCursor = DU.aggregate([
-                {
-                    $match: { usageStartTime: { $gte: startTime, $lt: endTime } }
-                },
-                {
-                    $lookup: { from: "ratecards", localField: "meterId", foreignField: "MeterId", as: "ratecard" }
-                },
-                {
-                    $unwind: "$ratecard"
-                },
-                {
-                    $group: {
-                        _id: { resourceGroup: "$resourceGroup", resourceName: "$resourceName", resourceType: "$resourceType" },
-                        totalPrice: { $sum: { $multiply: [ "$quantity", "$ratecard.MeterRates" ] } }
-                    }
-                },
-                {
-                    $project: {
-                        _id: 0, resourceGroup: "$_id.resourceGroup", resourceName: "$_id.resourceName", resourceType: "$_id.resourceType", totalPrice: 1
-                    }
-                },
-                {
-                    $sort: { totalPrice: -1 }
+        request(options, function (error, res, body) {
+            if (error) {
+                winston.log('error', '[Catchup] Get daily usage error', error);
+                cbj(error);
+                return;
+            }
+            var usageSegment;
+            try {
+                usageSegment = JSON.parse(body);
+            } catch (e) {
+                winston.log('error', '[Catchup] Parsing usage body error', e);
+                // retry
+                cbj();
+                return;
+            }
+            if (usageSegment.nextLink) {
+                var idx = usageSegment.nextLink.lastIndexOf("=");
+                cToken = usageSegment.nextLink.substr(idx + 1);
+                cToken = decodeURIComponent(cToken);
+            } else {
+                cToken = '';
+            }
+            nPage++;
+            var useSegmentArr = usageSegment.value;
+            var nInvalidData = 0;
+            for (var i = 0; i < useSegmentArr.length; i++) {
+                var instData = useSegmentArr[i].properties.instanceData;
+                var infoData = useSegmentArr[i].properties.infoFields;
+                if (typeof instData === "undefined" &&
+                    Object.keys(infoData).length === 0 &&
+                    infoData.constructor === Object) {
+                    // skip invalid data
+                    nInvalidData++;
+                    continue;
                 }
-            ]).cursor({ batchSize: 1000 }).exec();
-
-            costCursor.each(function(error, doc) {
-                if (error) {
-                    winston.log('error', '[Catchup] \t Daily costs iterator cursor error', error);
-                    cbj(error);
-                } else if (doc) {
-                    DC.update({
-                            subscriptionId: subItem.subscriptionId,
-                            resourceGroup: doc.resourceGroup,
-                            resourceType: doc.resourceType,
-                            resourceName: doc.resourceName,
-                            usageStartTime: startTime,
-                            usageEndTime: endTime
+                if (typeof instData === "undefined") {
+                    // handle classic data
+                    DU.update({
+                            subscriptionId: global.subscriptionId,
+                            resourceGroup: "classic",
+                            resourceType: infoData.meteredService,
+                            resourceName: infoData.project,
+                            usageStartTime: new Date(useSegmentArr[i].properties.usageStartTime),
+                            usageEndTime: new Date(useSegmentArr[i].properties.usageEndTime),
+                            meterId: useSegmentArr[i].properties.meterId
                         },
                         {
-                            subscriptionId: subItem.subscriptionId,
-                            resourceGroup: doc.resourceGroup,
-                            resourceType: doc.resourceType,
-                            resourceName: doc.resourceName,
-                            usageStartTime: startTime,
-                            usageEndTime: endTime,
-                            cost: doc.totalPrice
-                        }, {upsert: true}, function (err, costItem) {
+                            subscriptionId: global.subscriptionId,
+                            resourceGroup: "classic",
+                            resourceType: infoData.meteredService,
+                            resourceName: infoData.project,
+                            usageStartTime: new Date(useSegmentArr[i].properties.usageStartTime),
+                            usageEndTime: new Date(useSegmentArr[i].properties.usageEndTime),
+                            meterId: useSegmentArr[i].properties.meterId,
+                            quantity: useSegmentArr[i].properties.quantity,
+                            reportedStartTime: new Date(rST),
+                            reportedEndTime: new Date(rET)
+                        }, {upsert: true}, function (err, usageItem) {
                             if (err) {
-                                winston.log('error', '[Catchup] \t Daily costs table update error', err);
-                                cbj(error);
+                                winston.log('error', '[Catchup] Update DailyUsage table for CLASSIC error', err);
+                                cbj(err);
                             }
                         });
                 } else {
-                    winston.log('verbose', '[Catchup] \t Updated daily costs from %s to %s', startTime, endTime);
-                    nDays++;
-                    cbj();
-                }
-            });
-        }
+                    // handle arm data
+                    var instDataJson = JSON.parse(instData);
+                    var resourceUri = instDataJson["Microsoft.Resources"].resourceUri;
+                    var uriArr = resourceUri.split("/");
+                    var rG, rT, rN = uriArr[uriArr.length - 1];
+                    for (var j = 1; j < uriArr.length; j++) {
+                        if (uriArr[j-1].toLowerCase() === "resourcegroups")
+                            rG = uriArr[j];
+                        else if (uriArr[j-1].toLowerCase() === "providers")
+                            rT = uriArr[j] + "/" + uriArr[j+1];
+                    }
 
-        async.doWhilst(
-            getDailyCostHelper,
-            function () {
-                return startDay.isBefore(endDay);
-            },
-            function (err) {
-                if (err) {
-                    winston.log('error', '[Catchup] Daily costs async iteration error', err);
-                    cbi(err);
-                } else {
-                    winston.log('info', '[Catchup] Updated daily costs');
-                    cbi();
+                    DU.update({
+                            subscriptionId: global.subscriptionId,
+                            resourceGroup: rG,
+                            resourceType: rT,
+                            resourceName: rN,
+                            usageStartTime: new Date(useSegmentArr[i].properties.usageStartTime),
+                            usageEndTime: new Date(useSegmentArr[i].properties.usageEndTime),
+                            meterId: useSegmentArr[i].properties.meterId
+                        },
+                        {
+                            subscriptionId: global.subscriptionId,
+                            resourceGroup: rG,
+                            resourceType: rT,
+                            resourceName: rN,
+                            usageStartTime: new Date(useSegmentArr[i].properties.usageStartTime),
+                            usageEndTime: new Date(useSegmentArr[i].properties.usageEndTime),
+                            meterId: useSegmentArr[i].properties.meterId,
+                            quantity: useSegmentArr[i].properties.quantity,
+                            reportedStartTime: new Date(rST),
+                            reportedEndTime: new Date(rET)
+                        }, {upsert: true}, function (err, usageItem) {
+                            if (err) {
+                                winston.log('error', '[Catchup] Update DailyUsage table for ARM error', err);
+                                cbj(err);
+                            }
+                        });
                 }
             }
-        );
+            winston.log('info', "[Catchup] \tDailyUsage Page #" + nPage + " done:", "total:", useSegmentArr.length, "invalid:", nInvalidData);
+            cbj();
+        });
+    }
 
-    }).on('error', function (err) {
-        winston.log('error', '[Catchup] Subscription iteration for daily costs error', err);
-    }).on('close', function () {
-        winston.log('info', '[Catchup] Finish iterating all subscriptions for daily costs');
-    });
+    async.doWhilst(
+        getAggregatedUsageHelper,
+        function () {
+            return cToken != '';
+        },
+        function (err) {
+            if (err) {
+                winston.log('error', '[Catchup] Iterating Usage Pages error', err);
+                cbi(err);
+            } else {
+                winston.log('info', '[Catchup] Finish getting daily usage');
+                cbi();
+            }
+        }
+    );
+};
+
+var getDailyCosts = function (ts, cbi) {
+    var startDay = ts.StartTime;
+    var endDay = ts.EndTime;
+    var nDays = 0;
+
+    winston.log('info', '[Catchup] Getting daily costs from %s to %s',
+        startDay.format("YYYY-MM-DDTHH:mm:ssZ").toString(),
+        endDay.format("YYYY-MM-DDTHH:mm:ssZ").toString());
+
+    function getDailyCostHelper(cbj) {
+        var startTime = new Date(startDay.format("YYYY-MM-DDTHH:mm:ssZ").toString());
+        startDay.add(1, 'day');
+        var endTime = new Date(startDay.format("YYYY-MM-DDTHH:mm:ssZ").toString());
+        winston.log('verbose', '[Catchup] \t Calculating daily costs from %s to %s', startTime, endTime);
+        var costCursor = DU.aggregate([
+            {
+                $match: { usageStartTime: { $gte: startTime, $lt: endTime } }
+            },
+            {
+                $lookup: { from: "ratecards", localField: "meterId", foreignField: "MeterId", as: "ratecard" }
+            },
+            {
+                $unwind: "$ratecard"
+            },
+            {
+                $group: {
+                    _id: { resourceGroup: "$resourceGroup", resourceName: "$resourceName", resourceType: "$resourceType" },
+                    totalPrice: { $sum: { $multiply: [ "$quantity", "$ratecard.MeterRates" ] } }
+                }
+            },
+            {
+                $project: {
+                    _id: 0, resourceGroup: "$_id.resourceGroup", resourceName: "$_id.resourceName", resourceType: "$_id.resourceType", totalPrice: 1
+                }
+            },
+            {
+                $sort: { totalPrice: -1 }
+            }
+        ]).cursor({ batchSize: 1000 }).exec();
+
+        costCursor.each(function(error, doc) {
+            if (error) {
+                winston.log('error', '[Catchup] \t Daily costs iterator cursor error', error);
+                cbj(error);
+            } else if (doc) {
+                DC.update({
+                        subscriptionId: global.subscriptionId,
+                        resourceGroup: doc.resourceGroup,
+                        resourceType: doc.resourceType,
+                        resourceName: doc.resourceName,
+                        usageStartTime: startTime,
+                        usageEndTime: endTime
+                    },
+                    {
+                        subscriptionId: global.subscriptionId,
+                        resourceGroup: doc.resourceGroup,
+                        resourceType: doc.resourceType,
+                        resourceName: doc.resourceName,
+                        usageStartTime: startTime,
+                        usageEndTime: endTime,
+                        cost: doc.totalPrice
+                    }, {upsert: true}, function (err, costItem) {
+                        if (err) {
+                            winston.log('error', '[Catchup] \t Daily costs table update error', err);
+                            cbj(error);
+                        }
+                    });
+            } else {
+                winston.log('verbose', '[Catchup] \t Updated daily costs from %s to %s', startTime, endTime);
+                nDays++;
+                cbj();
+            }
+        });
+    }
+
+    async.doWhilst(
+        getDailyCostHelper,
+        function () {
+            return startDay.isBefore(endDay);
+        },
+        function (err) {
+            if (err) {
+                winston.log('error', '[Catchup] Daily costs async iteration error', err);
+                cbi(err);
+            } else {
+                winston.log('info', '[Catchup] Updated daily costs');
+                cbi();
+            }
+        }
+    );
 };
