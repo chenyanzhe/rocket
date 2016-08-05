@@ -2,6 +2,8 @@ param (
     [switch]$force # will overwrite existing settings
 );
 
+$summary = @()
+
 # logout existing users
 $_ = azure account show --json 2>&1
 if ($? -eq $True) {
@@ -35,7 +37,7 @@ For ($i = 0; $i -lt $accountList.Length; $i++) {
     $_ = azure account set $subscriptionId
 
     $password = ([char[]]([char]'a'..[char]'z') + 0..9 | sort {get-random})[0..32] -join ''
-    $adAppName = 'RocketAdApp_' + $subscriptionId + '_' + $alias
+    $adAppName = 'RocketAdApp-' + $subscriptionId
     $homepage = 'http://' + $adAppName
     $identifierUri = $homepage
 
@@ -74,4 +76,46 @@ For ($i = 0; $i -lt $accountList.Length; $i++) {
 
     Write-Host 'Login command:'
     Write-Host "`tazure login -u" $adAppId '-p' $password '--service-principal --tenant' $tenantId
+
+    ###################### Add Account ######################
+
+    $object = New-Object -TypeName PSObject
+    $object | Add-Member -MemberType NoteProperty -Name SubscriptionName -Value $subscriptionName
+    $object | Add-Member -MemberType NoteProperty -Name SubscriptionId -Value $subscriptionId
+    $object | Add-Member -MemberType NoteProperty -Name ClientId -Value $adAppId
+    $object | Add-Member -MemberType NoteProperty -Name ClientSecret -Value "$password"
+    $summary += $object
 }
+
+###################### Generate Config ######################
+
+$subContent = @()
+For ($i = 0; $i -lt $summary.Length; $i++) {
+    $_name = $summary[$i].SubscriptionName
+    $_id = $summary[$i].SubscriptionId
+    $_clientId = $summary[$i].ClientId
+    $_clientSecret = $summary[$i].ClientSecret
+
+    $item = @"
+    {
+        "name": "$_name",
+        "id": "$_id",
+        "clientId": "$_clientId",
+        "clientSecret": "$_clientSecret"
+    }
+"@
+    $subContent += $item
+}
+
+$subAll = $subContent -Join ','
+
+$jsonConfig = @"
+{
+    "subscriptions":
+    [
+        $subAll
+    ]
+}
+"@
+
+$jsonConfig > 'config.json'
