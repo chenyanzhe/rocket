@@ -77,8 +77,8 @@ var findMissingTimes = function (cb) {
 
     if (existingTimes.length == 0) {
         for (var i = defaultStartTime; i.isBefore(currentTime); i.add(1, 'day')) {
-            var _start = moment(i);
-            var _end = moment(i); _end.add(1, 'day');
+            var _start = moment(i).utc();
+            var _end = moment(i).utc(); _end.add(1, 'day');
             missingTimes.push({StartTime: _start, EndTime: _end});
         }
         winston.log('info', '[Catchup] Finish expanding missing time periods, size = %d', missingTimes.length);
@@ -101,8 +101,8 @@ var findMissingTimes = function (cb) {
     var expandedMissingTimes = [];
     for (var i = 0; i < missingTimes.length; i++) {
         for (var j = missingTimes[i].StartTime; j.isBefore(missingTimes[i].EndTime); j.add(1, 'day')) {
-            var _start = moment(j);
-            var _end = moment(j); _end.add(1, 'day');
+            var _start = moment(j).utc();
+            var _end = moment(j).utc(); _end.add(1, 'day');
             expandedMissingTimes.push({StartTime: _start, EndTime: _end});
         }
     }
@@ -121,79 +121,6 @@ var fetchMissingUsage = function (cb) {
             cb();
         }
     });
-};
-
-var findMissingCosts = function (cb) {
-    // This is the earliest date providing usage data
-    var defaultStartTime = moment("2015-03-04T00:00:00+00:00");
-    var currentTime = moment().utc().startOf('day');
-
-    if (existingCosts.length == 0) {
-        missingCosts.push({StartTime: defaultStartTime, EndTime: currentTime});
-        cb();
-        return;
-    }
-
-    if (defaultStartTime.isBefore(existingCosts[0].StartTime)) {
-        missingCosts.push({StartTime: defaultStartTime, EndTime: existingCosts[0].StartTime});
-    }
-    for (var i = 1; i < existingCosts.length; i++) {
-        if (existingCosts[i-1].EndTime.isBefore(existingCosts[i].StartTime)) {
-            missingCosts.push({StartTime: existingCosts[i-1].EndTime, EndTime: existingCosts[i].StartTime});
-        }
-    }
-    if (existingCosts[existingCosts.length - 1].EndTime.isBefore(currentTime)) {
-        missingCosts.push({StartTime: existingCosts[existingCosts.length - 1].EndTime, EndTime: currentTime});
-    }
-    winston.log('info', '[Catchup] Finish finding missing costs periods, size = %d', missingCosts.length);
-    cb();
-};
-
-var fetchExistingCosts = function (cb) {
-    var costsCursor = DC.aggregate([
-        {
-            $match: {
-                subscriptionId: global.subscriptionId
-            }
-        },
-        {
-            $group: {
-                _id: { usageStartTime: "$usageStartTime", usageEndTime: "$usageEndTime" }
-            }
-        },
-        {
-            $project: {
-                _id: 0, usageStartTime: "$_id.usageStartTime", usageEndTime: "$_id.usageEndTime"
-            }
-        },
-        { $sort: { usageStartTime: 1 } }
-    ]).cursor({ batchSize: 1000 }).exec();
-
-
-
-    costsCursor.each(function(error, item) {
-        if (error) {
-            winston.log('error', '[Catchup] Fetching existing costs periods error %s', error);
-            cb(error);
-        } else if (item) {
-            existingCosts.push({StartTime: moment(item.usageStartTime).utc(), EndTime: moment(item.usageEndTime).utc()});
-        } else {
-            winston.log('info', '[Catchup] Finish fetching existing costs periods, size = %d', existingCosts.length);
-            cb();
-        }
-    });
-};
-
-var calcMissingCosts = function (cb) {
-    async.map(missingCosts, getDailyCosts, function (err, results) {
-        if (err) {
-            winston.log('error', '[Catchup] Calculate missing costs error', err);
-            cb(err);
-        } else {
-            winston.log('info', '[Catchup] Finish calculating missing costs');
-            cb();
-        }
-    })
 };
 
 var getDailyUsage = function (ts, cbi) {
@@ -351,20 +278,107 @@ var getDailyUsage = function (ts, cbi) {
     );
 };
 
+var fetchExistingCosts = function (cb) {
+    var costsCursor = DC.aggregate([
+        {
+            $match: {
+                subscriptionId: global.subscriptionId
+            }
+        },
+        {
+            $group: {
+                _id: { usageStartTime: "$usageStartTime", usageEndTime: "$usageEndTime" }
+            }
+        },
+        {
+            $project: {
+                _id: 0, usageStartTime: "$_id.usageStartTime", usageEndTime: "$_id.usageEndTime"
+            }
+        },
+        { $sort: { usageStartTime: 1 } }
+    ]).cursor({ batchSize: 1000 }).exec();
+
+    costsCursor.each(function(error, item) {
+        if (error) {
+            winston.log('error', '[Catchup] Fetching existing costs periods error %s', error);
+            cb(error);
+        } else if (item) {
+            existingCosts.push({StartTime: moment(item.usageStartTime).utc(), EndTime: moment(item.usageEndTime).utc()});
+        } else {
+            winston.log('info', '[Catchup] Finish fetching existing costs periods, size = %d', existingCosts.length);
+            cb();
+        }
+    });
+};
+
+var findMissingCosts = function (cb) {
+    // This is the earliest date providing usage data
+    var defaultStartTime = moment("2015-03-04T00:00:00+00:00");
+    var currentTime = moment().utc().startOf('day');
+
+    if (existingCosts.length == 0) {
+        for (var i = defaultStartTime; i.isBefore(currentTime); i.add(1, 'day')) {
+            var _start = moment(i).utc();
+            var _end = moment(i).utc(); _end.add(1, 'day');
+            missingCosts.push({StartTime: _start, EndTime: _end});
+        }
+        winston.log('info', '[Catchup] Finish expanding missing time periods, size = %d', missingCosts.length);
+        cb();
+        return;
+    }
+
+    if (defaultStartTime.isBefore(existingCosts[0].StartTime)) {
+        missingCosts.push({StartTime: defaultStartTime, EndTime: existingCosts[0].StartTime});
+    }
+    for (var i = 1; i < existingCosts.length; i++) {
+        if (existingCosts[i-1].EndTime.isBefore(existingCosts[i].StartTime)) {
+            missingCosts.push({StartTime: existingCosts[i-1].EndTime, EndTime: existingCosts[i].StartTime});
+        }
+    }
+    if (existingCosts[existingCosts.length - 1].EndTime.isBefore(currentTime)) {
+        missingCosts.push({StartTime: existingCosts[existingCosts.length - 1].EndTime, EndTime: currentTime});
+    }
+    winston.log('info', '[Catchup] Finish finding missing costs periods, size = %d', missingCosts.length);
+
+    var expandedMissingCosts = [];
+    for (var i = 0; i < missingCosts.length; i++) {
+        for (var j = missingCosts[i].StartTime; j.isBefore(missingCosts[i].EndTime); j.add(1, 'day')) {
+            var _start = moment(j).utc();
+            var _end = moment(j).utc(); _end.add(1, 'day');
+            expandedMissingCosts.push({StartTime: _start, EndTime: _end});
+        }
+    }
+    missingCosts = expandedMissingCosts;
+    winston.log('info', '[Catchup] Finish expanding missing costs periods, size = %d (%d)', missingCosts.length, expandedMissingCosts.length);
+    cb();
+};
+
+var calcMissingCosts = function (cb) {
+    async.mapSeries(missingCosts, getDailyCosts, function (err, results) {
+        if (err) {
+            winston.log('error', '[Catchup] Calculate missing costs error', err);
+            cb(err);
+        } else {
+            winston.log('info', '[Catchup] Finish calculating missing costs');
+            cb();
+        }
+    })
+};
+
 var getDailyCosts = function (ts, cbi) {
     var startDay = ts.StartTime;
     var endDay = ts.EndTime;
     var nDays = 0;
 
-    winston.log('info', '[Catchup] Getting daily costs from %s to %s',
-        startDay.format("YYYY-MM-DDTHH:mm:ssZ").toString(),
-        endDay.format("YYYY-MM-DDTHH:mm:ssZ").toString());
+    var rST = ts.StartTime.format("YYYY-MM-DDTHH:mm:ssZ").toString();
+    var rET = ts.EndTime.format("YYYY-MM-DDTHH:mm:ssZ").toString();
+
+    winston.log('info', '[Catchup] Getting daily costs from %s to %s', rST, rET);
 
     function getDailyCostHelper(cbj) {
         var startTime = new Date(startDay.format("YYYY-MM-DDTHH:mm:ssZ").toString());
         startDay.add(1, 'day');
         var endTime = new Date(startDay.format("YYYY-MM-DDTHH:mm:ssZ").toString());
-        winston.log('verbose', '[Catchup] \t Calculating daily costs from %s to %s', startTime, endTime);
         var costCursor = DU.aggregate([
             {
                 $match: { usageStartTime: { $gte: startTime, $lt: endTime } }
@@ -414,12 +428,12 @@ var getDailyCosts = function (ts, cbi) {
                         cost: doc.totalPrice
                     }, {upsert: true}, function (err, costItem) {
                         if (err) {
-                            winston.log('error', '[Catchup] \t Daily costs table update error', err);
+                            winston.log('error', '[Catchup] \tDaily costs table update error', err);
                             cbj(error);
                         }
                     });
             } else {
-                winston.log('verbose', '[Catchup] \t Updated daily costs from %s to %s', startTime, endTime);
+                winston.log('verbose', '[Catchup] \tUpdated daily costs from %s to %s', startTime, endTime);
                 nDays++;
                 cbj();
             }
@@ -436,7 +450,7 @@ var getDailyCosts = function (ts, cbi) {
                 winston.log('error', '[Catchup] Daily costs async iteration error', err);
                 cbi(err);
             } else {
-                winston.log('info', '[Catchup] Updated daily costs');
+                winston.log('info', '[Catchup] Finish getting daily costs from %s to %s', rST, rET);
                 cbi();
             }
         }
