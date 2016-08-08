@@ -88,55 +88,8 @@ function subscriptionCtrl($scope) {
     };
 }
 
-function chartJsCtrl() {
-    this.lineDataDashboard4 = {
-        labels: ["January", "February", "March", "April", "May", "June", "July"],
-        datasets: [
-            {
-                label: "Example dataset",
-                fillColor: "rgba(220,220,220,0.5)",
-                strokeColor: "rgba(220,220,220,1)",
-                pointColor: "rgba(220,220,220,1)",
-                pointStrokeColor: "#fff",
-                pointHighlightFill: "#fff",
-                pointHighlightStroke: "rgba(220,220,220,1)",
-                data: [65, 59, 40, 51, 36, 25, 40]
-            },
-            {
-                label: "Example dataset",
-                fillColor: "rgba(26,179,148,0.5)",
-                strokeColor: "rgba(26,179,148,0.7)",
-                pointColor: "rgba(26,179,148,1)",
-                pointStrokeColor: "#fff",
-                pointHighlightFill: "#fff",
-                pointHighlightStroke: "rgba(26,179,148,1)",
-                data: [48, 48, 60, 39, 56, 37, 30]
-            }
-        ]
-    };
-
-    /**
-     * Options for Line chart
-     */
-    this.lineOptions = {
-        scaleShowGridLines : true,
-        scaleGridLineColor : "rgba(0,0,0,.05)",
-        scaleGridLineWidth : 1,
-        bezierCurve : true,
-        bezierCurveTension : 0.4,
-        pointDot : true,
-        pointDotRadius : 4,
-        pointDotStrokeWidth : 1,
-        pointHitDetectionRadius : 20,
-        datasetStroke : true,
-        datasetStrokeWidth : 2,
-        datasetFill : true
-    };
-}
-
 angular
     .module('inspinia')
     .controller('MainCtrl', MainCtrl)
     .controller('wizardCtrl', wizardCtrl)
-    .controller('subscriptionCtrl', subscriptionCtrl)
-    .controller('chartJsCtrl', chartJsCtrl);
+    .controller('subscriptionCtrl', subscriptionCtrl);

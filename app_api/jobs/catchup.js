@@ -76,7 +76,12 @@ var findMissingTimes = function (cb) {
     var currentTime = moment().utc().startOf('day');
 
     if (existingTimes.length == 0) {
-        missingTimes.push({StartTime: defaultStartTime, EndTime: currentTime});
+        for (var i = defaultStartTime; i.isBefore(currentTime); i.add(1, 'day')) {
+            var _start = moment(i);
+            var _end = moment(i); _end.add(1, 'day');
+            missingTimes.push({StartTime: _start, EndTime: _end});
+        }
+        winston.log('info', '[Catchup] Finish expanding missing time periods, size = %d', missingTimes.length);
         cb();
         return;
     }
@@ -93,7 +98,29 @@ var findMissingTimes = function (cb) {
         missingTimes.push({StartTime: existingTimes[existingTimes.length - 1].EndTime, EndTime: currentTime});
     }
     winston.log('info', '[Catchup] Finish finding missing time periods, size = %d', missingTimes.length);
+    var expandedMissingTimes = [];
+    for (var i = 0; i < missingTimes.length; i++) {
+        for (var j = missingTimes[i].StartTime; j.isBefore(missingTimes[i].EndTime); j.add(1, 'day')) {
+            var _start = moment(j);
+            var _end = moment(j); _end.add(1, 'day');
+            expandedMissingTimes.push({StartTime: _start, EndTime: _end});
+        }
+    }
+    missingTimes = expandedMissingTimes;
+    winston.log('info', '[Catchup] Finish expanding missing time periods, size = %d (%d)', missingTimes.length, expandedMissingTimes.length);
     cb();
+};
+
+var fetchMissingUsage = function (cb) {
+    async.mapSeries(missingTimes, getDailyUsage, function (err, results) {
+        if (err) {
+            winston.log('error', '[Catchup] Fetch missing usage error', err);
+            cb(err);
+        } else {
+            winston.log('info', '[Catchup] Finish fetching missing usage');
+            cb();
+        }
+    });
 };
 
 var findMissingCosts = function (cb) {
@@ -152,18 +179,6 @@ var fetchExistingCosts = function (cb) {
             existingCosts.push({StartTime: moment(item.usageStartTime).utc(), EndTime: moment(item.usageEndTime).utc()});
         } else {
             winston.log('info', '[Catchup] Finish fetching existing costs periods, size = %d', existingCosts.length);
-            cb();
-        }
-    });
-};
-
-var fetchMissingUsage = function (cb) {
-    async.map(missingTimes, getDailyUsage, function (err, results) {
-        if (err) {
-            winston.log('error', '[Catchup] Fetch missing usage error', err);
-            cb(err);
-        } else {
-            winston.log('info', '[Catchup] Finish fetching missing usage');
             cb();
         }
     });
@@ -329,7 +344,7 @@ var getDailyUsage = function (ts, cbi) {
                 winston.log('error', '[Catchup] Iterating Usage Pages error', err);
                 cbi(err);
             } else {
-                winston.log('info', '[Catchup] Finish getting daily usage');
+                winston.log('info', '[Catchup] Finish getting daily usage from %s to %s', rST, rET);
                 cbi();
             }
         }
