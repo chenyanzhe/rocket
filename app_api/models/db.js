@@ -5,7 +5,8 @@ var gracefulShutdown;
 var dbURI = process.env.DB_URI;
 
 //FIXME: subscription id should be set by user
-global.subscriptionId = '4be8920b-2978-43d7-ab14-04d8549c1d05';
+global.subscriptionId = 'c4528d9e-c99a-48bb-b12d-fde2176a43b8';
+//global.subscriptionId = '4be8920b-2978-43d7-ab14-04d8549c1d05';
 
 mongoose.connect(dbURI);
 

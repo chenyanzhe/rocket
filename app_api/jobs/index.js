@@ -1,13 +1,20 @@
 require('dotenv').load();
 var winston = require('winston');
 var moment = require('moment');
-//FIXME: subscription id should be set by user
-global.subscriptionId = '4be8920b-2978-43d7-ab14-04d8549c1d05';
+
 winston
     .add(winston.transports.File, {
         name: 'jobs-info',
         filename: 'logs/jobs-info.log',
         level: 'info',
+        timestamp: function () {
+            return moment().format("YYYY-MM-DDTHH:mm:ss").toString();
+        }
+    })
+    .add(winston.transports.File, {
+        name: 'jobs-warning',
+        filename: 'logs/jobs-warn.log',
+        level: 'warn',
         timestamp: function () {
             return moment().format("YYYY-MM-DDTHH:mm:ss").toString();
         }
@@ -27,6 +34,76 @@ winston
             return moment().format("YYYY-MM-DDTHH:mm:ss").toString();
         }
     });
+
+/* ----------------------------------------------------------------------------------------------------------------*/
+
+/*
+ * Parse arguments
+ */
+var argv = require('minimist')(process.argv.slice(2));``
+
+var printUnknownWarnings = function(argv) {
+    var unknowns = {};
+    var found = false;
+    Object.keys(argv).forEach(function(key, index) {
+        if (key === '_') {
+            if (argv[key].length > 0) {
+                unknowns[key] = argv[key];
+                found = true;
+            }
+        } else if (key !== 'id' && key !== 'secret' && key !== 'help') {
+            unknowns[key] = argv[key];
+            found = true;
+        }
+    });
+
+    if (found) {
+        Object.keys(unknowns).forEach(function(key, index) {
+            if (key === '_') {
+                var singles = unknowns[key][0];
+                for (var i = 1; i < unknowns[key].length; i++)
+                    singles += ', ' + unknowns[key];
+                console.log('Unknown arguments:', singles);
+            } else {
+                console.log('Unknown arguement: --' + key);
+            }
+        })
+        return;
+    }
+}
+
+printUnknownWarnings(argv);
+
+var parseArguments = function(argv) {
+    var help = false, id = false, secret = false;
+    Object.keys(argv).forEach(function(key, index) {
+        if (key === 'help') {
+            help = true;
+        } else if (key === 'id') {
+            id = true;
+        } else if (key === 'secret') {
+            secret = true;
+        }
+    });
+
+    if (help) {
+        console.log('Usage: node script.js --id <id> --secret <secret>');
+        return;
+    } else if (id && secret) {
+        global.client_id = argv.id;
+        global.client_secret = argv.secret;
+    } else {
+        if (!id && !secret)
+            console.log('Missing arguments: --id and --secret');
+        else if (!id)
+            console.log('Missing argument: --id');
+        else
+            console.log('Missing argument: --secret');
+        return;
+    }
+}
+
+parseArguments(argv);
 
 /* ----------------------------------------------------------------------------------------------------------------*/
 
@@ -180,19 +257,63 @@ function getAccessToken(callback) {
         {
             grant_type: 'client_credentials',
             resource: 'https://management.core.windows.net/',
-            client_id: process.env.CLIENT_ID,
-            client_secret: process.env.CLIENT_SECRET
+            client_id: global.client_id,
+            client_secret: global.client_secret
         }
     };
 
     request(options, function (err, res, body) {
         if (err) {
             winston.log('error', '[INIT] Get access token error %s', err);
+            callback(err);
         } else {
             var ret = JSON.parse(body);
-            global.access_token = ret.token_type + " " + ret.access_token;
-            winston.log('info', '[INIT] Access token is ready');
-            callback(null);
+            if (ret.error) {
+                if (ret.error_description)
+                    callback(ret.error_description);
+                else
+                    callback(ret.error);
+            } else {
+                global.access_token = ret.token_type + " " + ret.access_token;
+                winston.log('info', '[INIT] Access token is ready');
+                callback(null);
+            }
+        }
+    });
+}
+
+function getSubscription(callback) {
+    winston.log('info', '[INIT] Get subscription for the first time');
+    var request = require("request");
+
+    var options = { method: 'GET',
+        url: 'https://management.azure.com/subscriptions',
+        qs: { 'api-version': '2015-01-01' },
+        headers:
+        {
+            'cache-control': 'no-cache',
+            'content-type': 'application/json',
+            'authorization': global.access_token
+        }
+    };
+
+    request(options, function (error, response, body) {
+        if (error) {
+            winston.log('error', '[INIT] Get subscription error %s', error);
+            callback(error);
+        } else {
+            var ret = JSON.parse(body);
+            if (ret.error) {
+                if (ret.error.message)
+                    callback(ret.error.message);
+                else
+                    callback(ret.error);
+            } else {
+                global.subscriptionId = ret.value[0].subscriptionId;
+                global.subscriptionName = ret.value[0].displayName;
+                winston.log('info', '[INIT] Subscription is ready');
+                callback(null);
+            }
         }
     });
 }
@@ -202,6 +323,7 @@ async.series([
     connectDB,
     setupSchema,
     getAccessToken,
+    getSubscription,
     startTokenJob,
     startSubscriptionJob,
     catchUpJob,
