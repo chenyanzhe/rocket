@@ -55,6 +55,23 @@ require('./subscription');
 require('./usage');
 require('./cost');
 
+function getConfig(callback) {
+    var fs = require('fs');
+    fs.readFile('config.json', 'utf8', function (err, data) {
+        if (err) throw err;
+        var config = JSON.parse(data);
+        if (config.subscriptions && config.subscriptions.length > 0) {
+            global.subscriptionId = config.subscriptions[0].id;
+            global.clientId = config.subscriptions[0].clientId;
+            global.clientSecret = config.subscriptions[0].clientSecret;
+            global.configObj = config;
+            callback(null);
+        } else {
+            callback("Failed to load config file.");
+        }
+    });
+};
+
 function getAccessToken(callback) {
     console.log("INIT: access token is preparing ...");
     var request = require("request");
@@ -71,8 +88,8 @@ function getAccessToken(callback) {
         {
             grant_type: 'client_credentials',
             resource: 'https://management.core.windows.net/',
-            client_id: process.env.CLIENT_ID,
-            client_secret: process.env.CLIENT_SECRET
+            client_id: global.clientId,
+            client_secret: global.clientSecret
         }
     };
 
@@ -100,8 +117,8 @@ var getAccessTokenWorker = function () {
         {
             grant_type: 'client_credentials',
             resource: 'https://management.core.windows.net/',
-            client_id: process.env.CLIENT_ID,
-            client_secret: process.env.CLIENT_SECRET
+            client_id: global.clientId,
+            client_secret: global.clientSecret
         }
     };
 
@@ -132,6 +149,7 @@ function startTokenJob(callback) {
 
 var async = require('async');
 async.series([
+    getConfig,
     getAccessToken,
     startTokenJob
 ], function (err) {

@@ -82,9 +82,23 @@ function wizardCtrl($scope, $rootScope) {
 
 }
 
-function subscriptionCtrl($scope) {
+function subscriptionCtrl($scope, switchSubscriptionService) {
     $scope.changeLanguage = function (langKey) {
+        if (langKey === 'en') {
+            switchSubscriptionService.switchSub('c4528d9e-c99a-48bb-b12d-fde2176a43b8')
+                .success(function (data) {
+                    console.log("SUB1:", data);
+                    window.location.reload();
+                });
+        } else {
+            switchSubscriptionService.switchSub('4be8920b-2978-43d7-ab14-04d8549c1d05')
+                .success(function (data) {
+                    console.log("SUB2:", data);
+                    window.location.reload();
+                });
+        }
         console.log(langKey);
+        //$state.reload();
     };
 }
 

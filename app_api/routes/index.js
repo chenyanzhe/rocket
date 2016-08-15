@@ -16,5 +16,6 @@ router.get('/billing/:start/:end', ctrlBilling.lastWeek);
 
 router.get('/location', ctrlLocation.locationList);
 router.get('/subscription', ctrlSubscription.subList);
+router.get('/subscription/:subid', ctrlSubscription.switchSub);
 
 module.exports = router;

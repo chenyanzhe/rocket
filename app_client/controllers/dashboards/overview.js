@@ -4,7 +4,7 @@ function vmDataCtrl($scope, vmListService, geoLocService) {
 
     async.parallel([
         function(callback) {
-            vmListService
+            vmListService.getVMList()
                 .success(function (data) {
                     $scope.vmData = data;
                     $scope.totalAmount = data.length;
@@ -15,7 +15,7 @@ function vmDataCtrl($scope, vmListService, geoLocService) {
                 });
         },
         function(callback) {
-            geoLocService
+            geoLocService.getGeoLoc()
                 .success(function (data) {
                     $scope.locData = {};
                     for (var i = 0; i < data.length; i++) {
