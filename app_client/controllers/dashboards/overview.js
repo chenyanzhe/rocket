@@ -160,165 +160,81 @@ function todayResUsageCtrl($scope, billingService) {
 }
 
 function pastHalfYearCostCtrl($scope, billingService) {
-    var halfYearData = [];
-
-    async.series([
-        function(callback) {
-            var rST = moment().utc().startOf('month').subtract(5, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
-            var rET = moment().utc().startOf('month').subtract(4, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
-            var rKey = moment().utc().startOf('month').subtract(5, 'month').format("YYYY-MM").toString();
-
-            billingService.getBillingFunc(rST, rET)
-                .success(function (data) {
-                    var totalCosts = 0;
-                    for (var i = 0; i < data.length; i++) {
-                        totalCosts += data[i].totalCost;
-                    }
-                    halfYearData.push({key: rKey, value: totalCosts});
-                    callback();
-                })
-                .error(function (err) {
-                    callback(err);
-                });
-        },
-        function(callback) {
-            var rST = moment().utc().startOf('month').subtract(4, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
-            var rET = moment().utc().startOf('month').subtract(3, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
-            var rKey = moment().utc().startOf('month').subtract(4, 'month').format("YYYY-MM").toString();
-
-            billingService.getBillingFunc(rST, rET)
-                .success(function (data) {
-                    var totalCosts = 0;
-                    for (var i = 0; i < data.length; i++) {
-                        totalCosts += data[i].totalCost;
-                    }
-                    halfYearData.push({key: rKey, value: totalCosts});
-                    callback();
-                })
-                .error(function (err) {
-                    callback(err);
-                });
-        },
-        function(callback) {
-            var rST = moment().utc().startOf('month').subtract(3, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
-            var rET = moment().utc().startOf('month').subtract(2, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
-            var rKey = moment().utc().startOf('month').subtract(3, 'month').format("YYYY-MM").toString();
-
-            billingService.getBillingFunc(rST, rET)
-                .success(function (data) {
-                    var totalCosts = 0;
-                    for (var i = 0; i < data.length; i++) {
-                        totalCosts += data[i].totalCost;
-                    }
-                    halfYearData.push({key: rKey, value: totalCosts});
-                    callback();
-                })
-                .error(function (err) {
-                    callback(err);
-                });
-        },
-        function(callback) {
-            var rST = moment().utc().startOf('month').subtract(2, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
-            var rET = moment().utc().startOf('month').subtract(1, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
-            var rKey = moment().utc().startOf('month').subtract(2, 'month').format("YYYY-MM").toString();
-
-            billingService.getBillingFunc(rST, rET)
-                .success(function (data) {
-                    var totalCosts = 0;
-                    for (var i = 0; i < data.length; i++) {
-                        totalCosts += data[i].totalCost;
-                    }
-                    halfYearData.push({key: rKey, value: totalCosts});
-                    callback();
-                })
-                .error(function (err) {
-                    callback(err);
-                });
-        },
-        function(callback) {
-            var rST = moment().utc().startOf('month').subtract(1, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
-            var rET = moment().utc().startOf('month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
-            var rKey = moment().utc().startOf('month').subtract(1, 'month').format("YYYY-MM").toString();
-
-            billingService.getBillingFunc(rST, rET)
-                .success(function (data) {
-                    var totalCosts = 0;
-                    for (var i = 0; i < data.length; i++) {
-                        totalCosts += data[i].totalCost;
-                    }
-                    halfYearData.push({key: rKey, value: totalCosts});
-                    callback();
-                })
-                .error(function (err) {
-                    callback(err);
-                });
-        },
-        function(callback) {
+    var timePeriodMap = [];
+    for (var i = 5; i >= 0; i--) {
+        if (i > 0) {
+            var rST = moment().utc().startOf('month').subtract(i, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
+            var rET = moment().utc().startOf('month').subtract(i - 1, 'month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
+            var rKey = moment().utc().startOf('month').subtract(i, 'month').format("YYYY-MM").toString();
+            timePeriodMap.push({start: rST, end: rET, key: rKey});
+        } else {
             var rST = moment().utc().startOf('month').format("YYYY-MM-DDTHH:mm:ssZ").toString();
             var rET = moment().utc().startOf('day').format("YYYY-MM-DDTHH:mm:ssZ").toString();
             var rKey = moment().utc().startOf('month').format("YYYY-MM").toString();
+            timePeriodMap.push({start: rST, end: rET, key: rKey});
+        }
+    }
 
-            billingService.getBillingFunc(rST, rET)
+    async.map(timePeriodMap, function (timePeriod, callback) {
+            billingService.getBillingFunc(timePeriod.start, timePeriod.end)
                 .success(function (data) {
                     var totalCosts = 0;
                     for (var i = 0; i < data.length; i++) {
                         totalCosts += data[i].totalCost;
                     }
-                    halfYearData.push({key: rKey, value: totalCosts});
-                    callback();
+                    callback(null, {key: timePeriod.key, value: totalCosts});
                 })
                 .error(function (err) {
-                    callback(err);
+                    callback(err, null);
                 });
-        }
-    ],
-    // optional callback
-    function(err) {
-        if (err) {
-            console.log("pastHalfYearCostCtrl" + err);
-        } else {
-            var lineData = {
-                labels: [],
-                datasets: [
-                    {
-                        label: "half-year cost dataset",
-                        fillColor: "rgba(26,179,148,0.5)",
-                        strokeColor: "rgba(26,179,148,0.7)",
-                        pointColor: "rgba(26,179,148,1)",
-                        pointStrokeColor: "#fff",
-                        pointHighlightFill: "#fff",
-                        pointHighlightStroke: "rgba(26,179,148,1)",
-                        data: []
-                    }
-                ]
-            };
+        },
+        function(err, results) {
+            if (err) {
+                console.log("pastHalfYearCostCtrl" + err);
+            } else {
+                var lineData = {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: "half-year cost dataset",
+                            fillColor: "rgba(26,179,148,0.5)",
+                            strokeColor: "rgba(26,179,148,0.7)",
+                            pointColor: "rgba(26,179,148,1)",
+                            pointStrokeColor: "#fff",
+                            pointHighlightFill: "#fff",
+                            pointHighlightStroke: "rgba(26,179,148,1)",
+                            data: []
+                        }
+                    ]
+                };
 
-            var totalHalfYearCosts = 0;
-            for (var i = 0; i < halfYearData.length; i++) {
-                lineData.labels.push(halfYearData[i].key);
-                totalHalfYearCosts += halfYearData[i].value;
-                lineData.datasets[0].data.push(halfYearData[i].value.toFixed(0));
+                var totalHalfYearCosts = 0;
+                for (var i = 0; i < results.length; i++) {
+                    lineData.labels.push(results[i].key);
+                    totalHalfYearCosts += results[i].value;
+                    lineData.datasets[0].data.push(results[i].value.toFixed(0));
+                }
+                $scope.lineData = lineData;
+                $scope.totalHalfYearCosts = totalHalfYearCosts;
+                $scope.lastMonthCosts = results[results.length - 2].value;
+
+                $scope.lineOptions = {
+                    scaleShowGridLines : true,
+                    scaleGridLineColor : "rgba(0,0,0,.05)",
+                    scaleGridLineWidth : 1,
+                    bezierCurve : true,
+                    bezierCurveTension : 0.4,
+                    pointDot : true,
+                    pointDotRadius : 4,
+                    pointDotStrokeWidth : 1,
+                    pointHitDetectionRadius : 20,
+                    datasetStroke : true,
+                    datasetStrokeWidth : 2,
+                    datasetFill : true
+                };
             }
-            $scope.lineData = lineData;
-            $scope.totalHalfYearCosts = totalHalfYearCosts;
-            $scope.lastMonthCosts = halfYearData[halfYearData.length - 2].value;
-
-            $scope.lineOptions = {
-                scaleShowGridLines : true,
-                scaleGridLineColor : "rgba(0,0,0,.05)",
-                scaleGridLineWidth : 1,
-                bezierCurve : true,
-                bezierCurveTension : 0.4,
-                pointDot : true,
-                pointDotRadius : 4,
-                pointDotStrokeWidth : 1,
-                pointHitDetectionRadius : 20,
-                datasetStroke : true,
-                datasetStrokeWidth : 2,
-                datasetFill : true
-            };
         }
-    });
+    );
 
     $scope.updatedDate = moment().startOf('day').format("YYYY-MM-DD").toString();
 }
