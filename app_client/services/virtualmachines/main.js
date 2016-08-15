@@ -16,15 +16,8 @@ function vmUsageService($http) {
 	}
 }
 
-function switchSubscriptionService($http) {
-    this.switchSub = function(subId) {
-        return $http.get('/api/subscription/' + subId);
-    }
-}
-
 angular
     .module('inspinia')
     .service('vmListService', vmListService)
     .service('vmUsageService', vmUsageService)
-    .service('geoLocService', geoLocService)
-    .service('switchSubscriptionService', switchSubscriptionService)
+    .service('geoLocService', geoLocService);
