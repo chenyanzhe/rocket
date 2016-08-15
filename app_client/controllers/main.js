@@ -98,7 +98,6 @@ function subscriptionCtrl($scope, switchSubscriptionService) {
                 });
         }
         console.log(langKey);
-        //$state.reload();
     };
 }
 

@@ -58,16 +58,21 @@ require('./cost');
 function getConfig(callback) {
     var fs = require('fs');
     fs.readFile('config.json', 'utf8', function (err, data) {
-        if (err) throw err;
-        var config = JSON.parse(data);
-        if (config.subscriptions && config.subscriptions.length > 0) {
-            global.subscriptionId = config.subscriptions[0].id;
-            global.clientId = config.subscriptions[0].clientId;
-            global.clientSecret = config.subscriptions[0].clientSecret;
-            global.configObj = config;
-            callback(null);
+        if (err) {
+            callback(err);
         } else {
-            callback("Failed to load config file.");
+            var config = JSON.parse(data);
+            if (config.subscriptions && config.subscriptions.length > 0) {
+                // set the first one as the default subscription
+                global.subscriptionId = config.subscriptions[0].id;
+                global.clientId = config.subscriptions[0].clientId;
+                global.clientSecret = config.subscriptions[0].clientSecret;
+
+                global.configObj = config;
+                callback(null);
+            } else {
+                callback("Failed to load config file.");
+            }
         }
     });
 };

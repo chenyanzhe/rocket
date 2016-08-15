@@ -19,7 +19,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
         .state('dashboards', {
             abstract: true,
             url: "/dashboards",
-            templateUrl: "views/common/content.html",
+            templateUrl: "views/common/content.html"
         })
         .state('dashboards.overview', {
             url: "/overview",
