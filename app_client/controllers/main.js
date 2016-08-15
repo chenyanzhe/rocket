@@ -26,21 +26,24 @@ function wizardCtrl($scope, $rootScope) {
 }
 
 function subscriptionCtrl($scope, subscriptionService) {
+    subscriptionService.subList()
+        .success(function (data) {
+            $scope.subInfo = data;
+            for (var i = 0; i < data.subscriptions.length; i++) {
+                if (data.subscriptions[i].id === data.active)
+                    $scope.activeSubName = data.subscriptions[i].name;
+            }
+        })
+        .error(function (err) {
+            console.log(err);
+        });
+
     $scope.changeLanguage = function (langKey) {
-        if (langKey === 'en') {
-            subscriptionService.switchSub('c4528d9e-c99a-48bb-b12d-fde2176a43b8')
-                .success(function (data) {
-                    console.log("SUB1:", data);
-                    window.location.reload();
-                });
-        } else {
-            subscriptionService.switchSub('4be8920b-2978-43d7-ab14-04d8549c1d05')
-                .success(function (data) {
-                    console.log("SUB2:", data);
-                    window.location.reload();
-                });
-        }
-        console.log(langKey);
+        var targetSub = $scope.subInfo.subscriptions[langKey].id;
+        subscriptionService.switchSub(targetSub)
+            .success(function (data) {
+                window.location.reload();
+            });
     };
 }
 

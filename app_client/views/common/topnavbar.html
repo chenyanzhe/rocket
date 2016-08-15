@@ -9,8 +9,9 @@
                     Subscriptions
                 </a>
                 <ul uib-dropdown-menu class="animated fadeInRight m-t-xs" ng-controller="subscriptionCtrl">
-                    <li><a ng-click="changeLanguage('en')">OSTC Shanghai Dev</a></li>
-                    <li><a ng-click="changeLanguage('es')">OSTC Shanghai Test</a></li>
+                    <li ng-repeat="subItem in subInfo.subscriptions">
+                        <a ng-click="changeLanguage($index)">{{ subItem.name }}</a>
+                    </li>
                 </ul>
             </li>
             <li uib-dropdown>

@@ -11,7 +11,7 @@
                     </div>
                     <div class="ibox-content" ng-controller="lastMonthCostCtrl">
                         <h1 class="no-margins"> $ {{ monthlyCost | number: 0 }}</h1>
-                        <small>OSTC SHANGHAI DEV</small>
+                        <small ng-controller="subscriptionCtrl">{{ activeSubName }}</small>
                     </div>
                 </div>
             </div>
