@@ -40,7 +40,7 @@ winston
 /*
  * Parse arguments
  */
-var argv = require('minimist')(process.argv.slice(2));``
+var argv = require('minimist')(process.argv.slice(2));
 
 var printUnknownWarnings = function(argv) {
     var unknowns = {};
