@@ -12,6 +12,11 @@ var printed = false;
 // prepare: name, rgName, type, cost
 module.exports.lastWeek = function(request, response) {
     var billingInfo = [];
+    if (mongoose.connection.readyState !== 1) {
+        sendJSONResponse(response, 200, billingInfo);
+        return;
+    }
+
     var rST = request.params.start;
     var rET = request.params.end;
     console.log("\t" + rST + " - " + rET);
