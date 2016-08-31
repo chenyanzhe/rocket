@@ -88,22 +88,25 @@ var parseArguments = function(argv) {
 
     if (help) {
         console.log('Usage: node script.js --id <id> --secret <secret>');
-        return;
+        return false;
     } else if (id && secret) {
         global.client_id = argv.id;
         global.client_secret = argv.secret;
+        return true;
     } else {
-        if (!id && !secret)
+        if (!id && !secret) {
             console.log('Missing arguments: --id and --secret');
-        else if (!id)
+        } else if (!id) {
             console.log('Missing argument: --id');
-        else
+        } else {
             console.log('Missing argument: --secret');
-        return;
+        }
+        return false;
     }
-}
+};
 
-parseArguments(argv);
+if (!parseArguments(argv))
+    return;
 
 /* ----------------------------------------------------------------------------------------------------------------*/
 
