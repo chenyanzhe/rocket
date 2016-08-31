@@ -354,7 +354,12 @@ var findMissingCosts = function (cb) {
 };
 
 var calcMissingCosts = function (cb) {
-    async.mapSeries(missingCosts, getDailyCosts, function (err, results) {
+    var reversedMissingCosts = missingCosts;
+    var costsLen = missingCosts.length;
+    for (var i = 0; i < costsLen; i++) {
+        reversedMissingCosts[i] = missingCosts[costsLen - 1 - i];
+    }
+    async.mapSeries(reversedMissingCosts, getDailyCosts, function (err, results) {
         if (err) {
             winston.log('error', '[Catchup] Calculate missing costs error', err);
             cb(err);
