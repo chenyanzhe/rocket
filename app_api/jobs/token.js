@@ -14,8 +14,8 @@ module.exports.getAccessToken = function () {
         {
             grant_type: 'client_credentials',
             resource: 'https://management.core.windows.net/',
-            client_id: process.env.CLIENT_ID,
-            client_secret: process.env.CLIENT_SECRET
+            client_id: global.clientId,
+            client_secret: global.clientSecret
         }
     };
 
