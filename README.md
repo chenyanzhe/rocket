@@ -28,7 +28,7 @@ Check HTTP port (80) is open: Web Portal > Virtual Machines > Network Interface 
 
 ## Initial Database
 
-node ./app_api/jobs/index.js --id 8ccb958f-ef57-414d-a887-c4ba83f19817 --secret D3ccYg5yMehjSH5L8aAqstJdJHEkHP3yqkY5RYewYqcgAgNx
+node ./app_api/jobs/index.js --id [CLIENT ID] --secret [SECRET]
 
 ## Start Up
 
