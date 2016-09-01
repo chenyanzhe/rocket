@@ -13,6 +13,7 @@ router.get('/vhd_upload/:localpath', ctrlVM.vhdUpload);
 router.get('/img_list', ctrlVM.imgList);
 
 router.get('/billing/:start/:end', ctrlBilling.lastWeek);
+router.get('/name_list', ctrlBilling.nameList);
 
 router.get('/location', ctrlLocation.locationList);
 router.get('/subscription', ctrlSubscription.subList);

@@ -8,6 +8,30 @@ var sendJSONResponse = function(res, status, content) {
     res.json(content);
 };
 
+var nameMapping = [];
+
+module.exports.nameList = function(request, response) {
+    const readline = require('readline');
+    const fs = require('fs');
+    var aliasPath = 'alias.conf';
+
+    if (fs.existsSync(aliasPath)) {
+        const rl = readline.createInterface({
+            terminal: false,
+            input: fs.createReadStream(aliasPath)
+        });
+        rl.on('line', function (line) {
+            var pair = line.split(',');
+            nameMapping.push({prefix: pair[0], alias: pair[1]});
+        }).on('close', function () {
+            sendJSONResponse(response, 200, nameMapping);
+        });
+    } else {
+        console.log("Failed to open " + aliasPath);
+        sendJSONResponse(response, 404, "Failed to open " + aliasPath);
+    }
+};
+
 var printed = false;
 // prepare: name, rgName, type, cost
 module.exports.lastWeek = function(request, response) {
