@@ -20,6 +20,10 @@ module.exports.getLocationList = function () {
             winston.log('error', '[Location] Get Location job error %s', error);
         } else {
             var locArr = JSON.parse(body).value;
+            if (!locArr.length) {
+                winston.log('error', '[Location] Locations do not have length property');
+                return;
+            }
             for (var i = 0; i < locArr.length; i++) {
                 Loc.update(
                     { name: locArr[i].name },
