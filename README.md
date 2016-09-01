@@ -26,7 +26,9 @@ Check HTTP port (80) is open: Web Portal > Virtual Machines > Network Interface 
 
 3. Create alias.conf file
 
-## Initial Database
+## Initialization
+
+npm install
 
 node ./app_api/jobs/index.js --id [CLIENT ID] --secret [SECRET]
 
