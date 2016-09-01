@@ -16,7 +16,7 @@ sudo service mongod start
 
 [Optional] Azure network setup
 
-Check HTTP port (80) is open: Web Portal > Virtual Machines >　Ｎｅｔｗｏｒｋ　ｉｎｔｅｒｆａｃｅｓ　> Network security group > Inbound security rules
+Check HTTP port (80) is open: Web Portal > Virtual Machines > Network Interface > Network security group > Inbound security rules
 
 ## Configuration files set up
 
