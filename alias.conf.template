@@ -1,0 +1,4 @@
+# specify prefix to alias mapping
+# separated by comma(,)
+# e.g.:
+zs,zhangsan

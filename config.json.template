@@ -1,0 +1,17 @@
+# specify the subscriptions you want to monitor
+{
+  "subscriptions": [
+    {
+      "name": <-- SUBSCRIPTION NAME -->,
+      "id": <-- SUBSCRIPTION ID -->,
+      "clientId": <-- CLIENT ID -->,
+      "clientSecret": <-- CLIENT SECRET -->
+    },
+    {
+      "name": <-- SUBSCRIPTION NAME -->,
+      "id": <-- SUBSCRIPTION ID -->,
+      "clientId": <-- CLIENT ID -->,
+      "clientSecret": <-- CLIENT SECRET -->
+    },
+  ]
+}
