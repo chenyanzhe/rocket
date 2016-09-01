@@ -5,6 +5,13 @@ function billingService($http) {
     };
 }
 
+function namingService($http) {
+    this.getNamingFunc = function() {
+        return $http.get('/api/name_list');
+    };
+}
+
 angular
     .module('inspinia')
-    .service('billingService', billingService);
+    .service('billingService', billingService)
+    .service('namingService', namingService);
